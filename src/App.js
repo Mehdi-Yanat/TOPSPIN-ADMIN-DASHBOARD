@@ -17,15 +17,12 @@ import Configurator from "examples/Configurator";
 
 // Material Dashboard 2 React themes
 import theme from "assets/theme";
-import themeRTL from "assets/theme/theme-rtl";
 
 // Material Dashboard 2 React Dark Mode themes
 import themeDark from "assets/theme-dark";
-import themeDarkRTL from "assets/theme-dark/theme-rtl";
 
 // RTL plugins
 import rtlPlugin from "stylis-plugin-rtl";
-import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
 
 // Material Dashboard 2 React routes
@@ -40,6 +37,8 @@ import brandDark from "./assets/blacklogo.svg";
 import { useCheckTokenQuery } from "store/api";
 import { getCookie } from "react-use-cookie";
 import Loading from "components/Loading";
+import { cloneElement } from "react";
+import Popup from "components/Popup";
 
 export default function App() {
 
@@ -100,6 +99,15 @@ export default function App() {
     document.scrollingElement.scrollTop = 0;
   }, [pathname]);
 
+  const [isPopupOn, setIsPopupOn] = useState({
+    link: '',
+    isOn: false,
+    isEditMode: {
+      data: {},
+    },
+  })
+
+
   const getRoutes = (allRoutes) =>
     allRoutes.map((route) => {
       if (route.collapse) {
@@ -114,8 +122,10 @@ export default function App() {
         return isProtected ? (
           <Route
             path={route.route}
-            element={isAuth?.success ? route.component : <Navigate to="/auth/login" />}
+            element={isAuth?.success ? cloneElement(route.component, { setIsPopupOn, isPopupOn })
+              : <Navigate to="/auth/login" />}
             key={route.key}
+            setIsPopupOn={setIsPopupOn}
           />
         ) : (
           <Route exact path={route.route} element={route.component} key={route.key} />
@@ -156,6 +166,7 @@ export default function App() {
       <CssBaseline />
       {layout === "dashboard" && (
         <>
+          {isPopupOn.isOn ? <Popup setIsPopupOn={setIsPopupOn} link={isPopupOn.link} id={isPopupOn.isEditMode.data.id} data={isPopupOn.isEditMode.data} /> : ''}
           {isLoading && <Loading />}
           <Sidenav
             color={sidenavColor}

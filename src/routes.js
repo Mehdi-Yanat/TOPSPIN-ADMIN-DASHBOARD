@@ -1,4 +1,4 @@
-import Tables from "layouts/tables";
+import Tables from "layouts/tables/matchSchedules";
 import Profile from "layouts/profile";
 import Login from "layouts/authentication/sign-in/index";
 

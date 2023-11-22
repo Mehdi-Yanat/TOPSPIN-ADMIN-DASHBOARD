@@ -1,0 +1,28 @@
+.popup-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: white;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup {
+  width: 500px;
+  border-radius: 30px;
+  background-color: whitesmoke;
+}
+
+.closeBtn {
+  display: flex;
+  justify-content: flex-end;
+  padding: 1em;
+}
+
+.submit {
+  display: flex;
+  justify-content: center;
+  padding: 1em;
+}

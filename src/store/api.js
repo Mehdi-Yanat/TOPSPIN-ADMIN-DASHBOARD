@@ -38,13 +38,52 @@ const api = createApi({
                 }
             }),
         }),
+        getAllMatchSchedules: builder.query({
+            query: (token) => ({
+                url: '/schedule',
+                method: 'GET', // or 'GET' depending on your API
+                headers: {
+                    authorization: 'Bearer ' + token
+                }
+            }),
+        }),
+        addMatchSchedules: builder.mutation({
+            query: ({ formValues, token }) => ({
+                url: '/schedule',
+                method: 'POST',
+                body: formValues,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        editMatchSchedules: builder.mutation({
+            query: ({ formValues, id, token }) => ({
+                url: '/schedule/' + id,
+                method: 'PUT',
+                body: formValues,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        deleteMatchSchedules: builder.mutation({
+            query: ({ id, token }) => ({
+                url: '/schedule/' + id,
+                method: 'DELETE',
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
     })
 })
 
 
 
 export const {
-    useLoginMutation, useCheckTokenQuery, useChangePasswordMutation, useSendVerificationCodeMutation
+    useLoginMutation, useCheckTokenQuery, useChangePasswordMutation, useSendVerificationCodeMutation,
+    useGetAllMatchSchedulesQuery, useAddMatchSchedulesMutation, useEditMatchSchedulesMutation, useDeleteMatchSchedulesMutation
 } = api;
 
 export default api;
