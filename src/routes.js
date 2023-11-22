@@ -11,8 +11,9 @@ const routes = [
     name: "Dashboard",
     key: "dashboard",
     icon: <Icon fontSize="small">table_view</Icon>,
-    route: "/dashboard",
+    route: "/",
     component: <Tables />,
+    protected: true, // Mark the route as protected
   },
   {
     type: "collapse",
@@ -21,6 +22,7 @@ const routes = [
     icon: <Icon fontSize="small">person</Icon>,
     route: "/profile",
     component: <Profile />,
+    protected: true, // Mark the route as protected
   },
   {
     icon: <Icon fontSize="small">login</Icon>,

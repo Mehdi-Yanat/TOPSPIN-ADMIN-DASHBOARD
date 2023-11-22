@@ -37,8 +37,14 @@ import { useMaterialUIController, setMiniSidenav, setOpenConfigurator } from "co
 // Images
 import brandWhite from "./assets/logo.svg";
 import brandDark from "./assets/blacklogo.svg";
+import { useCheckTokenQuery } from "store/api";
+import { getCookie } from "react-use-cookie";
+import Loading from "components/Loading";
 
 export default function App() {
+
+  const token = getCookie('auth-token')
+  const { data: isAuth, isLoading } = useCheckTokenQuery(token)
   const [controller, dispatch] = useMaterialUIController();
   const {
     miniSidenav,
@@ -101,7 +107,19 @@ export default function App() {
       }
 
       if (route.route) {
-        return <Route exact path={route.route} element={route.component} key={route.key} />;
+        // Check if the route requires authentication
+        const isProtected = route.protected || false;
+
+        // Use a regular Route or a Navigate based on authentication status
+        return isProtected ? (
+          <Route
+            path={route.route}
+            element={isAuth?.success ? route.component : <Navigate to="/auth/login" />}
+            key={route.key}
+          />
+        ) : (
+          <Route exact path={route.route} element={route.component} key={route.key} />
+        );
       }
 
       return null;
@@ -131,11 +149,14 @@ export default function App() {
     </MDBox>
   );
 
+
+
   return (
     <ThemeProvider theme={darkMode ? themeDark : theme}>
       <CssBaseline />
       {layout === "dashboard" && (
         <>
+          {isLoading && <Loading />}
           <Sidenav
             color={sidenavColor}
             brand={(transparentSidenav && !darkMode) || whiteSidenav ? brandDark : brandWhite}
@@ -151,7 +172,6 @@ export default function App() {
       {layout === "vr" && <Configurator />}
       <Routes>
         {getRoutes(routes)}
-        <Route path="*" element={<Navigate to="/dashboard" />} />
       </Routes>
     </ThemeProvider>
   );
