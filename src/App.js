@@ -166,7 +166,7 @@ export default function App() {
       <CssBaseline />
       {layout === "dashboard" && (
         <>
-          {isPopupOn.isOn ? <Popup setIsPopupOn={setIsPopupOn} link={isPopupOn.link} id={isPopupOn.isEditMode.data.id} data={isPopupOn.isEditMode.data} /> : ''}
+          {isPopupOn.isOn ? <Popup setIsPopupOn={setIsPopupOn} link={isPopupOn.link} id={isPopupOn.isEditMode?.data.id} data={isPopupOn.isEditMode?.data} /> : ''}
           {isLoading && <Loading />}
           <Sidenav
             color={sidenavColor}
