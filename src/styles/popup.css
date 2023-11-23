@@ -11,6 +11,8 @@
 
 .popup {
   width: 500px;
+  max-height: 100%;
+  overflow-y: scroll;
   border-radius: 30px;
   background-color: whitesmoke;
 }

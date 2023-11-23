@@ -10,17 +10,24 @@ import { ToastContainer, toast } from 'react-toastify';
 import { getCookie } from 'react-use-cookie';
 import moment from 'moment';
 import { useEditMatchSchedulesMutation } from 'store/api';
+import { useDispatch } from 'react-redux';
+import { adminActions } from 'store/admin/admin-slice';
 
 function Popup({ setIsPopupOn, link, data, id }) {
 
+    const dispatch = useDispatch()
     const token = getCookie('auth-token')
 
     const [formValues, setFormValues] = useState({
-        date: data ? moment(data.date).format('YYYY-MM-DD') : null,
+        date: data ? moment(data.date).format('YYYY-MM-DD') : "",
         day: data ? data.day : "",
         hour: data ? data.hour : "",
         team1: data ? data.team1 : "",
         team2: data ? data.team2 : "",
+        team1MatchResultId: data ? data.team1MatchResult[0]?.id : "",
+        team2MatchResultId: data ? data.team2MatchResult[0]?.id : "",
+        team1Result: data ? data.team1MatchResult[0]?.result : 0,
+        team2Result: data ? data.team2MatchResult[0]?.result : 0
     })
 
     const [addMatchSchedules] = useAddMatchSchedulesMutation()
@@ -71,8 +78,24 @@ function Popup({ setIsPopupOn, link, data, id }) {
                             }
                         })} label={formValues.team2 ? "" : "Team 2"} fullWidth />
                     </MDBox>
+                    {id ? <>
+                        <MDBox m={4} mb={2}>
+                            <MDInput value={formValues.team1Result} name="team1Result" type="number" onChange={(e) => setFormValues(value => {
+                                return {
+                                    ...value,
+                                    team1Result: e.target.value
+                                }
+                            })} label={formValues.team1Result ? "" : "Team 1 Match Result"} fullWidth />
+                        </MDBox>
+                        <MDBox m={4} mb={2}>
+                            <MDInput value={formValues.team2Result} name="team2MatchResult" type="number" onChange={(e) => setFormValues(value => {
+                                return {
+                                    ...value,
+                                    team2Result: e.target.value
+                                }
+                            })} label={formValues.team2Result ? "" : "Team 2 Match Result"} fullWidth />
+                        </MDBox></> : ''}
                 </>
-
             default:
                 break;
         }
@@ -85,7 +108,10 @@ function Popup({ setIsPopupOn, link, data, id }) {
                 switch (link) {
                     case "/match-schedules":
                         console.log(formValues);
-                        result = await editMatchSchedules({ formValues , id , token }).unwrap();
+                        result = await editMatchSchedules({ formValues, id, token }).unwrap();
+                        if (result?.success) {
+                            dispatch(adminActions.setRefetchMatchSchedules("EDIT"))
+                        }
                         break;
                     default:
                         break;
@@ -94,6 +120,9 @@ function Popup({ setIsPopupOn, link, data, id }) {
                 switch (link) {
                     case "/match-schedules":
                         result = await addMatchSchedules({ formValues, token }).unwrap();
+                        if (result?.success) {
+                            dispatch(adminActions.setRefetchMatchSchedules("ADD"))
+                        }
                         break;
                     default:
                         break;
@@ -102,8 +131,7 @@ function Popup({ setIsPopupOn, link, data, id }) {
 
             toast.success(result?.message)
         } catch (error) {
-            console.log(error.data.message);
-            console.log(Array.isArray(error.data?.message));
+            dispatch(adminActions.setRefetchMatchSchedules(""))
             if (Array.isArray(error.data?.message)) {
                 error.data?.message.map(el => toast.warn(el))
             } else {

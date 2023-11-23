@@ -22,24 +22,33 @@ import MDButton from "components/MDButton";
 import moment from "moment/moment";
 import { useDeleteMatchSchedulesMutation } from "store/api";
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { adminActions } from "store/admin/admin-slice";
 
 function Tables({ setIsPopupOn, isPopupOn }) {
 
   const token = getCookie('auth-token')
-  const { data: matchSchedulesData } = useGetAllMatchSchedulesQuery(token);
+
+  const refetchMatchSchedules = useSelector((state) => state.admin.refetchMatchSchedules)
+  const dispatch = useDispatch()
+
+  const { data: matchSchedulesData, refetch } = useGetAllMatchSchedulesQuery(token);
   const [deleteMatchSchedules] = useDeleteMatchSchedulesMutation()
 
 
 
   const [data, setData] = useState({
     columns: [
-      { Header: "date", accessor: "date", align: "left" },
-      { Header: "day", accessor: "day", align: "left" },
-      { Header: "hour", accessor: "hour", align: "left" },
-      { Header: "team1", accessor: "team1", align: "left" },
-      { Header: "team2", accessor: "team2", align: "left" },
+      { Header: "date", accessor: "date", align: "center" },
+      { Header: "day", accessor: "day", align: "center" },
+      { Header: "hour", accessor: "hour", align: "center" },
+      { Header: "team1", accessor: "team1", align: "center" },
+      { Header: "team2", accessor: "team2", align: "center" },
+      { Header: "team1MatchResult", accessor: "team1MatchResult", align: "center" },
+      { Header: "team2MatchResult", accessor: "team2MatchResult", align: "center" },
       { Header: "action", accessor: "action", align: "center" },
-    ], rows: []
+    ],
+    rows: []
   });
 
   const editHandler = async (data) => {
@@ -58,10 +67,13 @@ function Tables({ setIsPopupOn, isPopupOn }) {
   const deleteHandler = async (id) => {
     try {
       let result = await deleteMatchSchedules({ id, token }).unwrap();
+      console.log(result);
+      if (result?.success) {
+        dispatch(adminActions.setRefetchMatchSchedules("DELETE"))
+      }
       toast.success(result?.message)
     } catch (error) {
-      console.log(error.data.message);
-      console.log(Array.isArray(error.data?.message));
+      dispatch(adminActions.setRefetchMatchSchedules(""))
       if (Array.isArray(error.data?.message)) {
         error.data?.message.map(el => toast.warn(el))
       } else {
@@ -69,6 +81,12 @@ function Tables({ setIsPopupOn, isPopupOn }) {
       }
     }
   }
+
+  useEffect(() => {
+    if (refetchMatchSchedules) {
+      refetch()
+    }
+  }, [refetchMatchSchedules, refetch])
 
   useEffect(() => {
     if (matchSchedulesData?.matches) {
@@ -100,6 +118,16 @@ function Tables({ setIsPopupOn, isPopupOn }) {
             {match.team2}
           </MDTypography>
         ),
+        team1MatchResult: (
+          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+            {match?.team1MatchResult.length ? match.team1MatchResult[0].result : "-"}
+          </MDTypography>
+        ),
+        team2MatchResult: (
+          <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+            {match?.team2MatchResult.length ? match.team2MatchResult[0].result : "-"}
+          </MDTypography>
+        ),
         action: (
           <>
             <MDButton onClick={() => editHandler(match)}  >
@@ -118,6 +146,7 @@ function Tables({ setIsPopupOn, isPopupOn }) {
       }));
     }
   }, [matchSchedulesData]);
+
 
   return (
     <DashboardLayout>
