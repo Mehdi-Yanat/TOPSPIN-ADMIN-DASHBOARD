@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import '../styles/popup.css'
 import CloseIcon from '@mui/icons-material/Close';
 import MDButton from './MDButton';
@@ -12,6 +12,7 @@ import moment from 'moment';
 import { useEditMatchSchedulesMutation } from 'store/api';
 import { useDispatch } from 'react-redux';
 import { adminActions } from 'store/admin/admin-slice';
+import Loading from './Loading';
 
 function Popup({ setIsPopupOn, link, data, id }) {
 
@@ -30,8 +31,8 @@ function Popup({ setIsPopupOn, link, data, id }) {
         team2Result: data ? data.team2MatchResult[0]?.result : 0
     })
 
-    const [addMatchSchedules] = useAddMatchSchedulesMutation()
-    const [editMatchSchedules] = useEditMatchSchedulesMutation()
+    const [addMatchSchedules, { isLoading }] = useAddMatchSchedulesMutation()
+    const [editMatchSchedules, { isLoading: EditLoading }] = useEditMatchSchedulesMutation()
 
 
     const renderInputs = () => {
@@ -107,10 +108,12 @@ function Popup({ setIsPopupOn, link, data, id }) {
             if (data) {
                 switch (link) {
                     case "/match-schedules":
-                        console.log(formValues);
                         result = await editMatchSchedules({ formValues, id, token }).unwrap();
                         if (result?.success) {
                             dispatch(adminActions.setRefetchMatchSchedules("EDIT"))
+                            setTimeout(() => {
+                                dispatch(adminActions.setRefetchMatchSchedules(''));
+                            }, 1000);
                         }
                         break;
                     default:
@@ -122,6 +125,9 @@ function Popup({ setIsPopupOn, link, data, id }) {
                         result = await addMatchSchedules({ formValues, token }).unwrap();
                         if (result?.success) {
                             dispatch(adminActions.setRefetchMatchSchedules("ADD"))
+                            setTimeout(() => {
+                                dispatch(adminActions.setRefetchMatchSchedules(''));
+                            }, 1000);
                         }
                         break;
                     default:
@@ -141,25 +147,27 @@ function Popup({ setIsPopupOn, link, data, id }) {
     }
 
     return (
-        <div className='popup-container'>
-            <ToastContainer />
-            <div className='popup' >
-                <div className="closeBtn" >
-                    <MDButton onClick={() => setIsPopupOn({
-                        isOn: false,
-                        link: ""
-                    })}  >
-                        <CloseIcon />
-                    </MDButton>
+        <>
+            {isLoading || EditLoading ? <Loading /> : <div className='popup-container'>
+                <ToastContainer />
+                <div className='popup' >
+                    <div className="closeBtn" >
+                        <MDButton onClick={() => setIsPopupOn({
+                            isOn: false,
+                            link: ""
+                        })}  >
+                            <CloseIcon />
+                        </MDButton>
+                    </div>
+                    {renderInputs()}
+                    <div className="submit" >
+                        <MDButton onClick={submitHandler} >
+                            Submit
+                        </MDButton>
+                    </div>
                 </div>
-                {renderInputs()}
-                <div className="submit" >
-                    <MDButton onClick={submitHandler} >
-                        Submit
-                    </MDButton>
-                </div>
-            </div>
-        </div>
+            </div>}
+        </>
     )
 }
 

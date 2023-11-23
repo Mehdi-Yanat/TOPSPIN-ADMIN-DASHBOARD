@@ -24,6 +24,7 @@ import { useDeleteMatchSchedulesMutation } from "store/api";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { adminActions } from "store/admin/admin-slice";
+import Loading from "components/Loading";
 
 function Tables({ setIsPopupOn, isPopupOn }) {
 
@@ -33,7 +34,7 @@ function Tables({ setIsPopupOn, isPopupOn }) {
   const dispatch = useDispatch()
 
   const { data: matchSchedulesData, refetch } = useGetAllMatchSchedulesQuery(token);
-  const [deleteMatchSchedules] = useDeleteMatchSchedulesMutation()
+  const [deleteMatchSchedules, { isLoading }] = useDeleteMatchSchedulesMutation()
 
 
 
@@ -70,6 +71,9 @@ function Tables({ setIsPopupOn, isPopupOn }) {
       console.log(result);
       if (result?.success) {
         dispatch(adminActions.setRefetchMatchSchedules("DELETE"))
+        setTimeout(() => {
+          dispatch(adminActions.setRefetchMatchSchedules(''));
+        }, 1000);
       }
       toast.success(result?.message)
     } catch (error) {
@@ -148,50 +152,54 @@ function Tables({ setIsPopupOn, isPopupOn }) {
   }, [matchSchedulesData]);
 
 
+
+
   return (
-    <DashboardLayout>
-      <DashboardNavbar />
-      <MDBox pt={6} pb={3}>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Card>
-              <MDBox
-                mx={2}
-                mt={-3}
-                py={3}
-                px={2}
-                variant="gradient"
-                bgColor="info"
-                borderRadius="lg"
-                coloredShadow="info"
-              >
-                <MDBox display="flex" alignItems="center" gap="10px"  >
-                  <MDTypography variant="h6" color="white">
-                    Match Schedule
-                  </MDTypography>
-                  <MDButton onClick={() => setIsPopupOn({
-                    link: '/match-schedules',
-                    isOn: true
-                  })} >
-                    Add Match Schedule
-                  </MDButton>
+    <>
+      {isLoading ? <Loading /> : <DashboardLayout>
+        <DashboardNavbar />
+        <MDBox pt={6} pb={3}>
+          <Grid container spacing={6}>
+            <Grid item xs={12}>
+              <Card>
+                <MDBox
+                  mx={2}
+                  mt={-3}
+                  py={3}
+                  px={2}
+                  variant="gradient"
+                  bgColor="info"
+                  borderRadius="lg"
+                  coloredShadow="info"
+                >
+                  <MDBox display="flex" alignItems="center" gap="10px"  >
+                    <MDTypography variant="h6" color="white">
+                      Match Schedule
+                    </MDTypography>
+                    <MDButton onClick={() => setIsPopupOn({
+                      link: '/match-schedules',
+                      isOn: true
+                    })} >
+                      Add Match Schedule
+                    </MDButton>
+                  </MDBox>
                 </MDBox>
-              </MDBox>
-              <MDBox pt={3}>
-                <DataTable
-                  table={data}
-                  isSorted={false}
-                  entriesPerPage={false}
-                  showTotalEntries={false}
-                  noEndBorder
-                />
-              </MDBox>
-            </Card>
+                <MDBox pt={3}>
+                  <DataTable
+                    table={data}
+                    isSorted={false}
+                    entriesPerPage={false}
+                    showTotalEntries={false}
+                    noEndBorder
+                  />
+                </MDBox>
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
-      </MDBox>
-      <Footer />
-    </DashboardLayout>
+        </MDBox>
+        <Footer />
+      </DashboardLayout>}
+    </>
   );
 }
 
