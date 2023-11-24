@@ -12,6 +12,15 @@ const api = createApi({
                 body: credentials,
             }),
         }),
+        logout: builder.mutation({
+            query: ({ token }) => ({
+                url: '/auth/logout',
+                method: 'GET',
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
         sendVerificationCode: builder.mutation({
             query: (email) => ({
                 url: '/auth/send-verification-code',
@@ -76,6 +85,44 @@ const api = createApi({
                 },
             }),
         }),
+        editAdmin: builder.mutation({
+            query: ({ formValues, token }) => ({
+                url: '/auth/admin/edit',
+                method: 'PUT',
+                body: formValues,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        addAdmin: builder.mutation({
+            query: ({ formValuesAdd, token }) => ({
+                url: '/auth/admin/add',
+                method: 'POST',
+                body: formValuesAdd,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        deleteAdmin: builder.mutation({
+            query: ({ id, token }) => ({
+                url: '/auth/admin/delete/' + id,
+                method: 'DELETE',
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        listAdmin: builder.query({
+            query: (token) => ({
+                url: '/auth/admin/lists',
+                method: 'GET', // or 'GET' depending on your API
+                headers: {
+                    authorization: 'Bearer ' + token
+                }
+            }),
+        }),
     })
 })
 
@@ -83,7 +130,8 @@ const api = createApi({
 
 export const {
     useLoginMutation, useCheckTokenQuery, useChangePasswordMutation, useSendVerificationCodeMutation,
-    useGetAllMatchSchedulesQuery, useAddMatchSchedulesMutation, useEditMatchSchedulesMutation, useDeleteMatchSchedulesMutation
+    useGetAllMatchSchedulesQuery, useAddMatchSchedulesMutation, useEditMatchSchedulesMutation, useDeleteMatchSchedulesMutation,
+    useEditAdminMutation, useAddAdminMutation, useLogoutMutation, useListAdminQuery, useDeleteAdminMutation
 } = api;
 
 export default api;
