@@ -57,7 +57,7 @@ function AdminTables({ lists , deleteAdmin }) {
       const mappedRows = lists.map((match) => ({
         firstName: (
           <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
-            {moment(match.firstName).format('YYYY.MM.DD')}
+            {match.firstName}
           </MDTypography>
         ),
         lastName: (
