@@ -30,7 +30,7 @@ function Tables({ setIsPopupOn, isPopupOn }) {
 
   const token = getCookie('auth-token')
 
-  const refetchMatchSchedules = useSelector((state) => state.admin.refetchMatchSchedules)
+  const refetchMatchSchedules = useSelector((state) => state.admin.refetch)
   const dispatch = useDispatch()
 
   const { data: matchSchedulesData, refetch } = useGetAllMatchSchedulesQuery(token);
@@ -89,8 +89,9 @@ function Tables({ setIsPopupOn, isPopupOn }) {
   useEffect(() => {
     if (refetchMatchSchedules) {
       refetch()
+      setIsPopupOn(false)
     }
-  }, [refetchMatchSchedules, refetch])
+  }, [refetchMatchSchedules, setIsPopupOn, refetch])
 
   useEffect(() => {
     if (matchSchedulesData?.matches) {

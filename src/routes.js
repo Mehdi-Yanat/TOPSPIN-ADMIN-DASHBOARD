@@ -1,4 +1,5 @@
 import Tables from "layouts/tables/matchSchedules";
+import TablesOff from "layouts/tables/playoff";
 import Profile from "layouts/profile";
 import Login from "layouts/authentication/sign-in/index";
 
@@ -8,11 +9,20 @@ import Icon from "@mui/material/Icon";
 const routes = [
   {
     type: "collapse",
-    name: "Dashboard",
-    key: "dashboard",
+    name: "Match Schedules",
+    key: "Match Schedules",
     icon: <Icon fontSize="small">table_view</Icon>,
     route: "/",
     component: <Tables />,
+    protected: true, // Mark the route as protected
+  },
+  {
+    type: "collapse",
+    name: "Play off",
+    key: "Play off",
+    icon: <Icon fontSize="small">sports_tennis</Icon>,
+    route: "/playoff",
+    component: <TablesOff />,
     protected: true, // Mark the route as protected
   },
   {

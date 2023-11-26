@@ -1,15 +1,15 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    refetchMatchSchedules: ''
+    refetch: ''
 }
 
 const adminSlice = createSlice({
     name: 'admin',
     initialState,
     reducers: {
-        setRefetchMatchSchedules: (state, action) => {
-            state.refetchMatchSchedules = action.payload
+        setRefetch: (state, action) => {
+            state.refetch = action.payload
         }
     }
 });

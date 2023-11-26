@@ -85,6 +85,65 @@ const api = createApi({
                 },
             }),
         }),
+        getAllPlayOff: builder.query({
+            query: (token) => ({
+                url: '/schedule/playoff',
+                method: 'GET', // or 'GET' depending on your API
+                headers: {
+                    authorization: 'Bearer ' + token
+                }
+            }),
+        }),
+        addPlayOffTable: builder.mutation({
+            query: ({ formValues, token }) => ({
+                url: '/schedule/playoff',
+                method: 'POST',
+                body: formValues,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        addPlayOffTableRow: builder.mutation({
+            query: ({ formValues, id, token }) => ({
+                url: `/schedule/playoff/${id}/row`,
+                method: 'POST',
+                body: formValues,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        editPlayOffTableRow: builder.mutation({
+            query: ({ formValues, rowId, token }) => ({
+                url: `/schedule/playoff/row/${rowId}`,
+                method: 'PUT',
+                body: formValues,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        deletePlayOffTableRow: builder.mutation({
+            query: ({ formValues, rowId, token }) => ({
+                url: `/schedule/playoff/row/${rowId}`,
+                method: 'DELETE',
+                body: formValues,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        deletePlayOffTable: builder.mutation({
+            query: ({ formValues, id, token }) => ({
+                url: `/schedule/playoff/${id}`,
+                method: 'DELETE',
+                body: formValues,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
         editAdmin: builder.mutation({
             query: ({ formValues, token }) => ({
                 url: '/auth/admin/edit',
@@ -131,7 +190,8 @@ const api = createApi({
 export const {
     useLoginMutation, useCheckTokenQuery, useChangePasswordMutation, useSendVerificationCodeMutation,
     useGetAllMatchSchedulesQuery, useAddMatchSchedulesMutation, useEditMatchSchedulesMutation, useDeleteMatchSchedulesMutation,
-    useEditAdminMutation, useAddAdminMutation, useLogoutMutation, useListAdminQuery, useDeleteAdminMutation
+    useEditAdminMutation, useAddAdminMutation, useLogoutMutation, useListAdminQuery, useDeleteAdminMutation, useGetAllPlayOffQuery, useAddPlayOffTableMutation,
+    useAddPlayOffTableRowMutation, useEditPlayOffTableRowMutation, useDeletePlayOffTableRowMutation, useDeletePlayOffTableMutation
 } = api;
 
 export default api;
