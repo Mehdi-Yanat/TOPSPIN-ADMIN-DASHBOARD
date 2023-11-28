@@ -182,6 +182,47 @@ const api = createApi({
                 }
             }),
         }),
+        getAllLeagues: builder.query({
+            query: (token) => ({
+                url: '/leagues',
+                method: 'GET', // or 'GET' depending on your API
+            }),
+        }),
+        getOneLeagues: builder.query({
+            query: ({ id }) => ({
+                url: '/leagues/' + id,
+                method: 'GET', // or 'GET' depending on your API
+            }),
+        }),
+        addLeagues: builder.mutation({
+            query: ({ formValues, token }) => ({
+                url: `/leagues`,
+                method: 'POST',
+                body: formValues,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        editLeagues: builder.mutation({
+            query: ({ formValues, id, token }) => ({
+                url: `/leagues/` + id,
+                method: 'PUT',
+                body: formValues,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        deleteLeagues: builder.mutation({
+            query: ({ id, token }) => ({
+                url: `/leagues/${id}`,
+                method: 'DELETE',
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
     })
 })
 
@@ -191,7 +232,8 @@ export const {
     useLoginMutation, useCheckTokenQuery, useChangePasswordMutation, useSendVerificationCodeMutation,
     useGetAllMatchSchedulesQuery, useAddMatchSchedulesMutation, useEditMatchSchedulesMutation, useDeleteMatchSchedulesMutation,
     useEditAdminMutation, useAddAdminMutation, useLogoutMutation, useListAdminQuery, useDeleteAdminMutation, useGetAllPlayOffQuery, useAddPlayOffTableMutation,
-    useAddPlayOffTableRowMutation, useEditPlayOffTableRowMutation, useDeletePlayOffTableRowMutation, useDeletePlayOffTableMutation
+    useAddPlayOffTableRowMutation, useEditPlayOffTableRowMutation, useDeletePlayOffTableRowMutation, useDeletePlayOffTableMutation, useGetAllLeaguesQuery,
+    useAddLeaguesMutation, useDeleteLeaguesMutation, useEditLeaguesMutation, useGetOneLeaguesQuery
 } = api;
 
 export default api;

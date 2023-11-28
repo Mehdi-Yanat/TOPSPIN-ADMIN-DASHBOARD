@@ -16,11 +16,14 @@ import Loading from './Loading';
 import { useAddPlayOffTableMutation } from 'store/api';
 import { useAddPlayOffTableRowMutation } from 'store/api';
 import { useEditPlayOffTableRowMutation } from 'store/api';
+import { useAddLeaguesMutation } from 'store/api';
+import { useEditLeaguesMutation } from 'store/api';
 
 function Popup({ setIsPopupOn, link, data, id, popup }) {
 
     const dispatch = useDispatch()
     const token = getCookie('auth-token')
+
 
     const [formValues, setFormValues] = useState({
         date: data ? moment(data.date).format('YYYY-MM-DD') : "",
@@ -31,7 +34,8 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
         team1MatchResultId: data?.team1MatchResult?.[0]?.id || "",
         team2MatchResultId: data?.team2MatchResult?.[0]?.id || "",
         team1Result: data?.team1MatchResult?.[0]?.result || 0,
-        team2Result: data?.team2MatchResult?.[0]?.result || 0
+        team2Result: data?.team2MatchResult?.[0]?.result || 0,
+        leagueId: popup.leagueId 
     })
 
     const [formValuesPlayOff, setFormValuesPlayOff] = useState({
@@ -41,11 +45,17 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
         result: data ? data.result : 0
     })
 
+    const [formValuesLeagues, setFormValuesLeagues] = useState({
+        leagueName: data ? data.leagueName : "",
+    })
+
     const [addMatchSchedules, { isLoading }] = useAddMatchSchedulesMutation()
+    const [addLeagues, { isLoading: leaguesLoading }] = useAddLeaguesMutation()
     const [addPlayOffTable, { isLoading: addPlayOffTableLoading }] = useAddPlayOffTableMutation()
     const [addPlayOffRowTable, { isLoading: addPlayOffTableRowLoading }] = useAddPlayOffTableRowMutation()
     const [editMatchSchedules, { isLoading: EditLoading }] = useEditMatchSchedulesMutation()
     const [editPlayOffRowTable, { isLoading: EditPlayOfFLoading }] = useEditPlayOffTableRowMutation()
+    const [editLeagues, { isLoading: EditLeaguesLoading }] = useEditLeaguesMutation()
 
 
     const renderInputs = () => {
@@ -148,6 +158,17 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                         })} label={formValuesPlayOff.result ? '' : "Result"} fullWidth />
                     </MDBox>
                 </>
+            case "/leagues":
+                return <>
+                    <MDBox m={4} mb={2}>
+                        <MDInput value={formValuesLeagues.leagueName} name="team" type="text" onChange={(e) => setFormValuesLeagues(value => {
+                            return {
+                                ...value,
+                                leagueName: e.target.value
+                            }
+                        })} label={formValuesLeagues.leagueName ? '' : "League Name"} fullWidth />
+                    </MDBox>
+                </>
             default:
                 break;
         }
@@ -169,6 +190,15 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                         break;
                     case "/playoff/row":
                         result = await editPlayOffRowTable({ formValues: formValuesPlayOff, rowId: data.id, token }).unwrap();
+                        if (result?.success) {
+                            dispatch(adminActions.setRefetch("EDIT"))
+                            setTimeout(() => {
+                                dispatch(adminActions.setRefetch(''));
+                            }, 1000);
+                        }
+                        break;
+                    case "/leagues":
+                        result = await editLeagues({ formValues: formValuesLeagues, id: data.id, token }).unwrap();
                         if (result?.success) {
                             dispatch(adminActions.setRefetch("EDIT"))
                             setTimeout(() => {
@@ -208,6 +238,15 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                             }, 1000);
                         }
                         break;
+                    case "/leagues":
+                        result = await addLeagues({ formValues: formValuesLeagues, token }).unwrap();
+                        if (result?.success) {
+                            dispatch(adminActions.setRefetch("ADD"))
+                            setTimeout(() => {
+                                dispatch(adminActions.setRefetch(''));
+                            }, 1000);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -226,8 +265,8 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
 
     return (
         <>
-            {isLoading || addPlayOffTableLoading || addPlayOffTableLoading 
-            || addPlayOffTableRowLoading || EditLoading || EditPlayOfFLoading ? <Loading /> : <div className='popup-container'>
+            {isLoading || addPlayOffTableLoading || addPlayOffTableLoading
+                || addPlayOffTableRowLoading || EditLoading || EditPlayOfFLoading || leaguesLoading ? <Loading /> : <div className='popup-container'>
                 <ToastContainer />
                 <div className='popup' >
                     <div className="closeBtn" >
