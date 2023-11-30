@@ -1,6 +1,7 @@
 import Tables from "layouts/tables/matchSchedules";
 import PlayOff from "layouts/tables/playoff";
 import Leagues from "layouts/tables/leagues";
+import Results from "layouts/tables/results";
 import Profile from "layouts/profile";
 import Login from "layouts/authentication/sign-in/index";
 
@@ -24,6 +25,15 @@ const routes = [
     icon: <Icon fontSize="small">table_view</Icon>,
     route: "/match-schedules",
     component: <Tables />,
+    protected: true, // Mark the route as protected
+  },
+  {
+    type: "collapse",
+    name: "Results",
+    key: "Results",
+    icon: <Icon fontSize="small">scoreboard</Icon>,
+    route: "/results",
+    component: <Results />,
     protected: true, // Mark the route as protected
   },
   {
