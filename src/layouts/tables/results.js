@@ -15,7 +15,7 @@ import DataTable from "examples/Tables/DataTable";
 
 // Data
 import { getCookie } from "react-use-cookie";
-import { useState } from "react";
+import React, { useState } from "react";
 import { useEffect } from "react";
 import MDButton from "components/MDButton";
 import moment from "moment/moment";
@@ -29,6 +29,7 @@ import { useGetAllLeaguesQuery } from "store/api";
 import { useGetOneLeaguesQuery } from "store/api";
 import { useDeleteResultTableMutation } from "store/api";
 import { useDeleteResultTableRowMutation } from "store/api";
+import { useDeleteResultMacthesTableRowMutation } from "store/api";
 
 function Tables({ setIsPopupOn, isPopupOn }) {
 
@@ -43,7 +44,7 @@ function Tables({ setIsPopupOn, isPopupOn }) {
 
   const { data: leaguesData } = useGetAllLeaguesQuery();
   const { data: leagueData, refetch: refetchLeagueData } = useGetOneLeaguesQuery({ id: leagueId });
-  const [deleteResultTableRow, { isLoading }] = useDeleteResultTableRowMutation()
+  const [deleteResultTableRow, { isLoading }] = useDeleteResultMacthesTableRowMutation()
   const [deleteTable, { isLoading: deleteTableLoading }] = useDeleteResultTableMutation()
 
 
@@ -53,49 +54,52 @@ function Tables({ setIsPopupOn, isPopupOn }) {
       { Header: "matchcode", accessor: "matchcode", align: "center" },
       {
         Header: "team1", align: "center", columns: [
-          { Header: "playerName", accessor: "team1.playerName" },
-          { Header: "categorie", accessor: "team1.categorie" }
+          { Header: "playerName", accessor: "team1.playerName", align: "center" },
+          { Header: "categorie", accessor: "team1.categorie", align: "center" },
+          { Header: "teamName", accessor: "team1.teamName", align: "center" },
+          { Header: "teamCode", accessor: "team1.teamCode", align: "center" },
         ]
       },
       {
         Header: "team2", align: "center", columns: [
-          { Header: "playerName", accessor: "team2.playerName" },
-          { Header: "categorie", accessor: "team2.categorie" }
+          { Header: "playerName", accessor: "team2.playerName", align: "center" },
+          { Header: "categorie", accessor: "team2.categorie", align: "center" },
+          { Header: "teamName", accessor: "team2.teamName", align: "center" },
+          { Header: "teamCode", accessor: "team2.teamCode", align: "center" },
         ]
       },
       {
         Header: "set1", align: "center", columns: [
-          { Header: "team1", accessor: "set1.team1", },
-          { Header: "team2", accessor: "set1.team2", },
+          { Header: "team1", accessor: "set1.team1", align: "center" },
+          { Header: "team2", accessor: "set1.team2", align: "center" },
         ]
       },
       {
         Header: "set2", align: "center", columns: [
-          { Header: "team1", accessor: "set2.team1", },
-          { Header: "team2", accessor: "set2.team2", },
+          { Header: "team1", accessor: "set2.team1", align: "center" },
+          { Header: "team2", accessor: "set2.team2", align: "center" },
         ]
       },
       {
         Header: "set3", align: "center", columns: [
-          { Header: "team1", accessor: "set3.team1", },
-          { Header: "team2", accessor: "set3.team2" },
+          { Header: "team1", accessor: "set3.team1", align: "center" },
+          { Header: "team2", accessor: "set3.team2", align: "center" },
         ]
       },
       {
         Header: "matchScore", align: "center", columns: [
-          { Header: "team1", accessor: "matchScore.team1" },
-          { Header: "team2", accessor: "matchScore.team2" },
+          { Header: "team1", accessor: "matchScore.team1", align: "center" },
+          { Header: "team2", accessor: "matchScore.team2", align: "center" },
         ]
       },
       {
         Header: "matchPoint", align: "center", columns: [
-          { Header: "team1", accessor: "matchPoint.team1", },
-          { Header: "team2", accessor: "matchPoint.team2", },
+          { Header: "team1", accessor: "matchPoint.team1", align: "center" },
+          { Header: "team2", accessor: "matchPoint.team2", align: "center" },
         ]
       },
       { Header: "action", accessor: "action", align: "center" },
     ],
-    rows: []
   });
 
   const editHandler = async (data) => {
@@ -136,7 +140,7 @@ function Tables({ setIsPopupOn, isPopupOn }) {
       let result = await deleteTable({ id, token }).unwrap();
       console.log(result);
       if (result?.success) {
-        dispatch(adminActions.setRefetch("DELETE"))
+        dispatch(adminActions.setRefetch("DELETE-TABLE"))
         setTimeout(() => {
           dispatch(adminActions.setRefetch(''));
         }, 1000);
@@ -159,78 +163,190 @@ function Tables({ setIsPopupOn, isPopupOn }) {
     }
   }, [refetchMatches, setIsPopupOn, refetchLeagueData])
 
-  console.log(leagueData);
+  const [tableData, setTableData] = useState([]);
+
 
   useEffect(() => {
-    if (leagueData?.leagues?.results?.matches?.length) {
+    if (leagueData?.leagues?.results?.length > 0) {
+      const mappedTables = leagueData.leagues.results.map((table) => {
+        const mappedMatches = table.matches.map((match) => ({
+          hour: (
+            <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              {match.hour}
+            </MDTypography>
+          ),
+          matchcode: (
+            <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              {match.matchCode}
+            </MDTypography>
+          ),
+          team1: {
+            playerName: < >
+              {match.team1[0].players.map(el => <MDTypography mt=".5em" component="p" variant="caption" color="text" fontWeight="medium">
+                {el.playerName}
+              </MDTypography>)}
+            </>,
+            categorie: < >
+              {match.team1[0].players.map(el => <MDTypography mt=".5em" component="p" variant="caption" color="text" fontWeight="medium">
+                {el.categorie}
+              </MDTypography>)}
+            </>,
+            teamName: (
+              <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+                {match.team1[0].teamName}
+              </MDTypography>
+            ),
+            teamCode: (
+              <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+                {match.team1[0].teamCode}
+              </MDTypography>
+            ),
+          },
+          team2: {
+            playerName: < >
+              {match.team2[0].players.map(el => <MDTypography mt=".5em" component="p" variant="caption" color="text" fontWeight="medium">
+                {el.playerName}
+              </MDTypography>)}
+            </>,
+            categorie: < >
+              {match.team2[0].players.map(el => <MDTypography mt=".5em" component="p" variant="caption" color="text" fontWeight="medium">
+                {el.categorie}
+              </MDTypography>)}
+            </>,
+            teamName: (
+              <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+                {match.team2[0].teamName}
+              </MDTypography>
+            ),
+            teamCode: (
+              <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+                {match.team2[0].teamCode}
+              </MDTypography>
+            ),
+          },
+          set1: {
+            team1: <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team1[0].set1}
+            </MDTypography>,
+            team2: <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team2[0].set1}
+            </MDTypography>,
+          },
+          set2: {
+            team1: <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team1[0].set2}
+            </MDTypography>,
+            team2: <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team2[0].set2}
+            </MDTypography>,
+          },
+          set3: {
+            team1: <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team1[0].set3}
+            </MDTypography>,
+            team2: <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team2[0].set3}
+            </MDTypography>,
+          },
+          matchScore: {
+            team1: <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team1[0].matchScore}
+            </MDTypography>,
+            team2: <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team2[0].matchScore}
+            </MDTypography>,
+          },
+          matchPoint: {
+            team1: <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team1[0].matchPoint}
+            </MDTypography>,
+            team2: <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team2[0].matchPoint}
+            </MDTypography>,
+          },
+          action: (
+            <>
+              <MDButton onClick={() => editHandler(match)}>
+                Edit
+              </MDButton>
+              <MDButton onClick={() => deleteHandler(match.id)}>
+                Remove
+              </MDButton>
+            </>
+          ),
+        }));
 
-      const mappedRows = leagueData?.leagues?.results?.matches.map((result) => ({
+        const tableInfo = (
+          <MDBox key={table.id} pt={6} pb={3}>
+            <Grid container spacing={6}>
+              <Grid item xs={12}>
+                <Card>
+                  <MDBox
+                    mx={2}
+                    mt={-3}
+                    py={3}
+                    px={2}
+                    variant="gradient"
+                    bgColor="info"
+                    borderRadius="lg"
+                    coloredShadow="info"
+                  >
+                    <MDBox display="flex" alignItems="center" gap="10px">
+                      <MDTypography variant="h6" color="white">
+                        {table.identifierName} | {moment(table.date).format('DD.MM.YYYY')}
+                      </MDTypography>
+                      <MDButton onClick={() => setIsPopupOn({
+                        link: '/results/add/row',
+                        isOn: true,
+                        resultId: table.id
+                      })}>
+                        Add Match result
+                      </MDButton>
+                      <MDButton onClick={() => deleteTableHandler(table.id)}>
+                        Remove Match table
+                      </MDButton>
+                    </MDBox>
+                  </MDBox>
+                  <MDBox pt={3}>
+                    <DataTable
+                      table={{ columns: data.columns, rows: mappedMatches }}
+                      isSorted={false}
+                      entriesPerPage={false}
+                      showTotalEntries={false}
+                      noEndBorder
+                    />
+                  </MDBox>
+                </Card>
+              </Grid>
+            </Grid>
+          </MDBox>
+        );
+
+        return {
+          tableInfo,
+          matches: mappedMatches,
+        };
+      });
+
+      setTableData(mappedTables);
+    }
+  }, [leagueData]);
+
+
+  /*
+    const mappedRows = isResultsHasMatches.map(result => (
+      {
         hour: (
-          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            hour
+          <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+            {result.hour}
           </MDTypography>
         ),
         matchcode: (
-          <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
+          <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
             matchcode
           </MDTypography>
         ),
-        team1: {
-          playerName: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            test
-          </MDTypography>,
-          categorie: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            categorie
-          </MDTypography>,
-        },
-        team2: {
-          playerName: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            playerName
-          </MDTypography>,
-          categorie: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            categorie
-          </MDTypography>,
-        },
-        set1: {
-          team1: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            playerName
-          </MDTypography>,
-          team2: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            categorie
-          </MDTypography>,
-        },
-        set2: {
-          team1: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            playerName
-          </MDTypography>,
-          team2: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            categorie
-          </MDTypography>,
-        },
-        set3: {
-          team1: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            playerName
-          </MDTypography>,
-          team2: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            categorie
-          </MDTypography>,
-        },
-        matchScore: {
-          team1: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            playerName
-          </MDTypography>,
-          team2: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            categorie
-          </MDTypography>,
-        },
-        matchPoint: {
-          team1: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            playerName
-          </MDTypography>,
-          team2: <MDTypography component="a" variant="caption" color="text" fontWeight="medium">
-            categorie
-          </MDTypography>,
-        },
+ 
         action: (
           <>
             <MDButton onClick={() => editHandler(result)}  >
@@ -241,17 +357,9 @@ function Tables({ setIsPopupOn, isPopupOn }) {
             </MDButton>
           </>
         ),
-      }));
-
-      console.log(mappedRows)
-        ;
-      setData((prevData) => ({
-        ...prevData,
-        rows: mappedRows,
-      }));
-    }
-  }, [leagueData]);
-
+      }
+    ))
+    */
 
   return (
     <>
@@ -272,51 +380,13 @@ function Tables({ setIsPopupOn, isPopupOn }) {
             }
           </Select>
         </FormControl>
-        {leagueData?.leagues.results?.length ? leagueData.leagues.results.map(result => (
-          <MDBox key={result.id} pt={6} pb={3}>
-            <Grid container spacing={6}>
-              <Grid item xs={12}>
-                <Card>
-                  <MDBox
-                    mx={2}
-                    mt={-3}
-                    py={3}
-                    px={2}
-                    variant="gradient"
-                    bgColor="info"
-                    borderRadius="lg"
-                    coloredShadow="info"
-                  >
-                    <MDBox display="flex" alignItems="center" gap="10px"  >
-                      <MDTypography variant="h6" color="white">
-                        {result.identifierName} | {moment(result.date).format('DD.MM.YYYY')}
-                      </MDTypography>
-                      <MDButton onClick={() => setIsPopupOn({
-                        link: '/results/add/row',
-                        isOn: true,
-                        leagueId
-                      })} >
-                        Add Match result
-                      </MDButton>
-                      <MDButton onClick={() => deleteTableHandler(result.id)}  >
-                        Remove Match table
-                      </MDButton>
-                    </MDBox>
-                  </MDBox>
-                  <MDBox pt={3}>
-                    <DataTable
-                      table={data}
-                      isSorted={false}
-                      entriesPerPage={false}
-                      showTotalEntries={false}
-                      noEndBorder
-                    />
-                  </MDBox>
-                </Card>
-              </Grid>
-            </Grid>
-          </MDBox>
-        )) : ''
+        {
+          tableData.map((table, index) => (
+            <React.Fragment key={index}>
+              {table.tableInfo}
+            </React.Fragment>
+          ))
+
         }
         {leagueData?.leagues ? <MDBox display="flex" justifyContent="center" padding="1em"  >
           <MDButton onClick={() => setIsPopupOn({
@@ -324,7 +394,7 @@ function Tables({ setIsPopupOn, isPopupOn }) {
             isOn: true,
             leagueId
           })} >
-            Add Match result
+            Add Match result Table
           </MDButton>
         </MDBox> : ''}
       </DashboardLayout>}

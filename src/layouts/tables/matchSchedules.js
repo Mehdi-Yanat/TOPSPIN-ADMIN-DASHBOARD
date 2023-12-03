@@ -107,38 +107,38 @@ function Tables({ setIsPopupOn, isPopupOn }) {
       // Map over matchSchedulesData.matches and generate rows
       const mappedRows = leagueData?.leagues?.matchSchedule.map((match) => ({
         date: (
-          <MDTypography component="a"  variant="caption" color="text" fontWeight="medium">
+          <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
             {moment(match.date).format('YYYY.MM.DD')}
           </MDTypography>
         ),
         day: (
-          <MDTypography component="a"  variant="caption" color="text" fontWeight="medium">
+          <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
             {match.day}
           </MDTypography>
         ),
         hour: (
-          <MDTypography component="a"  variant="caption" color="text" fontWeight="medium">
+          <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
             {match.hour}
           </MDTypography>
         ),
         team1: (
-          <MDTypography component="a"  variant="caption" color="text" fontWeight="medium">
+          <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
             {match.team1}
           </MDTypography>
         ),
         team2: (
-          <MDTypography component="a"  variant="caption" color="text" fontWeight="medium">
+          <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
             {match.team2}
           </MDTypography>
         ),
         team1MatchResult: (
-          <MDTypography component="a"  variant="caption" color="text" fontWeight="medium">
-            {match?.team1MatchResult?.length ? match.team1MatchResult[0].result : "-"}
+          <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+            {match?.team1MatchResult ? match.team1MatchResult : 0}
           </MDTypography>
         ),
         team2MatchResult: (
-          <MDTypography component="a"  variant="caption" color="text" fontWeight="medium">
-            {match?.team2MatchResult?.length ? match.team2MatchResult[0].result : "-"}
+          <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+            {match?.team2MatchResult ? match.team2MatchResult : 0}
           </MDTypography>
         ),
         action: (

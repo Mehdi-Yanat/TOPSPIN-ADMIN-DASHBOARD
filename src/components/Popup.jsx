@@ -19,6 +19,7 @@ import { useEditPlayOffTableRowMutation } from 'store/api';
 import { useAddLeaguesMutation } from 'store/api';
 import { useEditLeaguesMutation } from 'store/api';
 import { useAddResultTableMutation } from 'store/api';
+import { useAddResultsMatchesTableRowMutation } from 'store/api';
 
 function Popup({ setIsPopupOn, link, data, id, popup }) {
 
@@ -34,8 +35,8 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
         team2: data ? data.team2 : "",
         team1MatchResultId: data?.team1MatchResult?.[0]?.id || "",
         team2MatchResultId: data?.team2MatchResult?.[0]?.id || "",
-        team1Result: data?.team1MatchResult?.[0]?.result || 0,
-        team2Result: data?.team2MatchResult?.[0]?.result || 0,
+        team1Result: data?.team1MatchResult || 0,
+        team2Result: data?.team2MatchResult || 0,
         leagueId: popup.leagueId
     })
 
@@ -56,11 +57,44 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
         leagueId: popup.leagueId
     })
 
+    const [formValuesResultTableRow, setFormValuesResultTableRow] = useState({
+        hour: data ? data.hour : "",
+        matchCode: data ? data.matchCode : "",
+        team1Name: data ? data.teamName : "",
+        team1Code: data ? data.teamCode : "",
+        team2Name: data ? data.teamName : "",
+        team2Code: data ? data.teamCode : "",
+        team1: [{
+            playerName: "",
+            categorie: ""
+        }],
+        team2: [
+            {
+                playerName: "",
+                categorie: ""
+            }
+        ],
+        set1: {
+            team1: 0,
+            team2: 0,
+        },
+        set2: {
+            team1: 0,
+            team2: 0,
+        },
+        set3: {
+            team1: 0,
+            team2: 0,
+        },
+        resultId: popup.resultId
+    })
+
     const [addMatchSchedules, { isLoading }] = useAddMatchSchedulesMutation()
     const [addLeagues, { isLoading: leaguesLoading }] = useAddLeaguesMutation()
     const [addResultsTable, { isLoading: resultsTableLoading }] = useAddResultTableMutation()
     const [addPlayOffTable, { isLoading: addPlayOffTableLoading }] = useAddPlayOffTableMutation()
     const [addPlayOffRowTable, { isLoading: addPlayOffTableRowLoading }] = useAddPlayOffTableRowMutation()
+    const [addResultsMatchesTableRow, { isLoading: addResultsMatchesTableRowLoading }] = useAddResultsMatchesTableRowMutation()
     const [editMatchSchedules, { isLoading: EditLoading }] = useEditMatchSchedulesMutation()
     const [editPlayOffRowTable, { isLoading: EditPlayOfFLoading }] = useEditPlayOffTableRowMutation()
     const [editLeagues, { isLoading: EditLeaguesLoading }] = useEditLeaguesMutation()
@@ -185,7 +219,7 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                                 ...value,
                                 identifierName: e.target.value
                             }
-                        })} label={formValuesResultTable.leagueName ? '' : "Result Table Name"} fullWidth />
+                        })} label={formValuesResultTable.identifierName ? '' : "Result Table Name"} fullWidth />
                     </MDBox>
                     <MDBox m={4} mb={2}>
                         <MDInput value={formValuesResultTable.date} name="date" type="date" onChange={(e) => setFormValuesResultTable(value => {
@@ -194,6 +228,246 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                                 date: e.target.value
                             }
                         })} fullWidth />
+                    </MDBox>
+                </>
+            case "/results/add/row":
+                return <>
+                    <MDBox m={4} mb={2}>
+                        <MDInput value={formValuesResultTableRow.hour} name="hour" type="text" onChange={(e) => setFormValuesResultTableRow(value => {
+                            return {
+                                ...value,
+                                hour: e.target.value
+                            }
+                        })} label={formValuesResultTableRow.hour ? '' : "Hour"} fullWidth />
+                    </MDBox>
+                    <MDBox m={4} mb={0}>
+                        <MDInput value={formValuesResultTableRow.matchCode} name="matchCode" type="text" onChange={(e) => setFormValuesResultTableRow(value => {
+                            return {
+                                ...value,
+                                matchCode: e.target.value
+                            }
+                        })} label={formValuesResultTableRow.matchCode ? '' : "Match Code"} fullWidth />
+                    </MDBox>
+                    <MDBox display="flex" alignItems="center" >
+                        <MDBox m={4} mb={0}>
+                            <MDInput value={formValuesResultTableRow.team1Name} name="team1Name" type="text" onChange={(e) => setFormValuesResultTableRow(value => {
+                                return {
+                                    ...value,
+                                    team1Name: e.target.value
+                                }
+                            })} label={formValuesResultTableRow.team1Name ? '' : "Team 1 Name"} fullWidth />
+                        </MDBox>
+                        <MDBox m={4} mb={0}>
+                            <MDInput value={formValuesResultTableRow.team1Code} name="team1Code" type="text" onChange={(e) => setFormValuesResultTableRow(value => {
+                                return {
+                                    ...value,
+                                    team1Code: e.target.value
+                                }
+                            })} label={formValuesResultTableRow.team1Code ? '' : "Team 1 Code"} fullWidth />
+                        </MDBox>
+                    </MDBox>
+                    <MDBox display="flex" alignItems="center" >
+                        <MDBox m={4} >
+                            <MDInput value={formValuesResultTableRow.team2Name} name="team2Name" type="text" onChange={(e) => setFormValuesResultTableRow(value => {
+                                return {
+                                    ...value,
+                                    team2Name: e.target.value
+                                }
+                            })} label={formValuesResultTableRow.team2Name ? '' : "Team 2 Name"} fullWidth />
+                        </MDBox>
+                        <MDBox m={4} >
+                            <MDInput value={formValuesResultTableRow.team2Code} name="team2Code" type="text" onChange={(e) => setFormValuesResultTableRow(value => {
+                                return {
+                                    ...value,
+                                    team2Code: e.target.value
+                                }
+                            })} label={formValuesResultTableRow.team2Code ? '' : "Team 2 Code"} fullWidth />
+                        </MDBox>
+                    </MDBox>
+                    {formValuesResultTableRow.team1.map((player, index) => (
+                        <MDBox display="flex" alignItems="center" mt={2} key={index}>
+                            <MDBox ml={4} mr={4} >
+                                <MDInput
+                                    value={player.playerName}
+                                    name={`team1-player-${index}`}
+                                    type="text"
+                                    onChange={(e) => setFormValuesResultTableRow((prevValues) => {
+                                        const updatedTeam1 = [...prevValues.team1];
+                                        updatedTeam1[index].playerName = e.target.value;
+                                        return { ...prevValues, team1: updatedTeam1 };
+                                    })}
+                                    label={player.playerName ? '' : `Team 1 Player ${index + 1}`}
+                                    fullWidth
+                                />
+                            </MDBox>
+                            <MDBox display="flex" justifyContent="center">
+                                <MDButton onClick={() => setFormValuesResultTableRow((prevValues) => {
+                                    const updatedTeam1 = [...prevValues.team1];
+                                    updatedTeam1.pop(); // Remove the last player
+                                    return { ...prevValues, team1: updatedTeam1 };
+                                })}>
+                                    Remove
+                                </MDButton>
+                            </MDBox>
+                            <MDBox ml={4} mr={4} >
+                                <MDInput
+                                    value={player.categorie}
+                                    name={`team1-categorie-${index}`}
+                                    type="text"
+                                    onChange={(e) => setFormValuesResultTableRow((prevValues) => {
+                                        const updatedTeam1 = [...prevValues.team1];
+                                        updatedTeam1[index].categorie = e.target.value;
+                                        return { ...prevValues, team1: updatedTeam1 };
+                                    })}
+                                    label={player.categorie ? '' : `Team 1 Category ${index + 1}`}
+                                    fullWidth
+                                />
+                            </MDBox>
+                        </MDBox>
+                    ))}
+                    <MDBox mt={2} display="flex" justifyContent="center">
+                        <MDButton onClick={() => setFormValuesResultTableRow((prevValues) => ({
+                            ...prevValues,
+                            team1: [...prevValues.team1, { playerName: "", categorie: "" }]
+                        }))}>
+                            Add Player on Team 1
+                        </MDButton>
+                    </MDBox>
+                    {formValuesResultTableRow.team2.map((player, index) => (
+                        <MDBox display="flex" alignItems="center" mt={2} key={index}>
+                            <MDBox ml={4} mr={4}>
+                                <MDInput
+                                    value={player.playerName}
+                                    name={`team2-player-${index}`}
+                                    type="text"
+                                    onChange={(e) => setFormValuesResultTableRow((prevValues) => {
+                                        const updatedTeam2 = [...prevValues.team2];
+                                        updatedTeam2[index].playerName = e.target.value;
+                                        return { ...prevValues, team2: updatedTeam2 };
+                                    })}
+                                    label={player.playerName ? '' : `Team 2 Player ${index + 1}`}
+                                    fullWidth
+                                />
+                            </MDBox>
+                            <MDBox display="flex" justifyContent="center">
+                                <MDButton onClick={() => setFormValuesResultTableRow((prevValues) => {
+                                    const updatedTeam2 = [...prevValues.team2];
+                                    updatedTeam2.pop(); // Remove the last player
+                                    return { ...prevValues, team2: updatedTeam2 };
+                                })}>
+                                    Remove
+                                </MDButton>
+                            </MDBox>
+                            <MDBox ml={4} mr={4}>
+                                <MDInput
+                                    value={player.categorie}
+                                    name={`team2-categorie-${index}`}
+                                    type="text"
+                                    onChange={(e) => setFormValuesResultTableRow((prevValues) => {
+                                        const updatedTeam2 = [...prevValues.team2];
+                                        updatedTeam2[index].categorie = e.target.value;
+                                        return { ...prevValues, team2: updatedTeam2 };
+                                    })}
+                                    label={player.categorie ? '' : `Team 2 Category ${index + 1}`}
+                                    fullWidth
+                                />
+                            </MDBox>
+                        </MDBox>
+                    ))}
+                    <MDBox mt={2} display="flex" justifyContent="center">
+                        <MDButton onClick={() => setFormValuesResultTableRow((prevValues) => ({
+                            ...prevValues,
+                            team2: [...prevValues.team2, { playerName: "", categorie: "" }]
+                        }))}>
+                            Add Player on Team 2
+                        </MDButton>
+                    </MDBox>
+                    <MDBox display="flex" alignItems="center" mt={2}>
+                        <MDBox ml={4} mr={4}>
+                            <MDInput
+                                value={formValuesResultTableRow.set1.team1}
+                                name="set1-team1"
+                                type="number"
+                                onChange={(e) => setFormValuesResultTableRow((prevValues) => ({
+                                    ...prevValues,
+                                    set1: { ...prevValues.set1, team1: e.target.value }
+                                }))}
+                                label="Set 1 Team 1"
+                                fullWidth
+                            />
+                        </MDBox>
+
+                        <MDBox ml={4} mr={4}>
+                            <MDInput
+                                value={formValuesResultTableRow.set1.team2}
+                                name="set1-team2"
+                                type="number"
+                                onChange={(e) => setFormValuesResultTableRow((prevValues) => ({
+                                    ...prevValues,
+                                    set1: { ...prevValues.set1, team2: e.target.value }
+                                }))}
+                                label="Set 1 Team 2"
+                                fullWidth
+                            />
+                        </MDBox>
+                    </MDBox>
+                    <MDBox display="flex" alignItems="center" mt={2}>
+                        <MDBox ml={4} mr={4}>
+                            <MDInput
+                                value={formValuesResultTableRow.set2.team1}
+                                name="set2-team1"
+                                type="number"
+                                onChange={(e) => setFormValuesResultTableRow((prevValues) => ({
+                                    ...prevValues,
+                                    set2: { ...prevValues.set2, team1: e.target.value }
+                                }))}
+                                label="Set 2 Team 1"
+                                fullWidth
+                            />
+                        </MDBox>
+
+                        <MDBox ml={4} mr={4}>
+                            <MDInput
+                                value={formValuesResultTableRow.set2.team2}
+                                name="set2-team2"
+                                type="number"
+                                onChange={(e) => setFormValuesResultTableRow((prevValues) => ({
+                                    ...prevValues,
+                                    set2: { ...prevValues.set2, team2: e.target.value }
+                                }))}
+                                label="Set 2 Team 2"
+                                fullWidth
+                            />
+                        </MDBox>
+                    </MDBox>
+                    <MDBox display="flex" alignItems="center" mt={2}>
+                        <MDBox ml={4} mr={4}>
+                            <MDInput
+                                value={formValuesResultTableRow.set3.team1}
+                                name="set3-team1"
+                                type="number"
+                                onChange={(e) => setFormValuesResultTableRow((prevValues) => ({
+                                    ...prevValues,
+                                    set3: { ...prevValues.set3, team1: e.target.value }
+                                }))}
+                                label="Set 3 Team 1"
+                                fullWidth
+                            />
+                        </MDBox>
+
+                        <MDBox ml={4} mr={4}>
+                            <MDInput
+                                value={formValuesResultTableRow.set3.team2}
+                                name="set3-team2"
+                                type="number"
+                                onChange={(e) => setFormValuesResultTableRow((prevValues) => ({
+                                    ...prevValues,
+                                    set3: { ...prevValues.set3, team2: e.target.value }
+                                }))}
+                                label="Set 3 Team 2"
+                                fullWidth
+                            />
+                        </MDBox>
                     </MDBox>
                 </>
             default:
@@ -292,6 +566,15 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                             }, 1000);
                         }
                         break;
+                    case "/results/add/row":
+                        result = await addResultsMatchesTableRow({ formValues: formValuesResultTableRow, token }).unwrap();
+                        if (result?.success) {
+                            dispatch(adminActions.setRefetch("ADD"))
+                            setTimeout(() => {
+                                dispatch(adminActions.setRefetch(''));
+                            }, 1000);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -311,7 +594,8 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
     return (
         <>
             {isLoading || addPlayOffTableLoading || addPlayOffTableLoading
-                || addPlayOffTableRowLoading || EditLoading || EditPlayOfFLoading || leaguesLoading || resultsTableLoading ? <Loading /> : <div className='popup-container'>
+                || addPlayOffTableRowLoading || EditLoading || EditPlayOfFLoading || leaguesLoading || resultsTableLoading
+                || addResultsMatchesTableRowLoading || EditLeaguesLoading ? <Loading /> : <div className='popup-container'>
                 <ToastContainer />
                 <div className='popup' >
                     <div className="closeBtn" >
