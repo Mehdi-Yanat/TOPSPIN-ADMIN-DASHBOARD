@@ -7,6 +7,7 @@ import Login from "layouts/authentication/sign-in/index";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
+import Error from "components/Error";
 
 const routes = [
   {
@@ -58,6 +59,10 @@ const routes = [
     icon: <Icon fontSize="small">login</Icon>,
     route: "/auth/login",
     component: <Login />,
+  },
+  {
+    route: "*",
+    component: <Error />,
   },
 
 ];

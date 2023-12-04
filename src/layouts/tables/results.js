@@ -19,7 +19,6 @@ import React, { useState } from "react";
 import { useEffect } from "react";
 import MDButton from "components/MDButton";
 import moment from "moment/moment";
-import { useDeleteMatchSchedulesMutation } from "store/api";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { adminActions } from "store/admin/admin-slice";
@@ -28,8 +27,8 @@ import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import { useGetAllLeaguesQuery } from "store/api";
 import { useGetOneLeaguesQuery } from "store/api";
 import { useDeleteResultTableMutation } from "store/api";
-import { useDeleteResultTableRowMutation } from "store/api";
 import { useDeleteResultMacthesTableRowMutation } from "store/api";
+import { Navigate } from "react-router-dom";
 
 function Tables({ setIsPopupOn, isPopupOn }) {
 
@@ -105,7 +104,7 @@ function Tables({ setIsPopupOn, isPopupOn }) {
   const editHandler = async (data) => {
     setIsPopupOn(value => {
       return {
-        link: "/results",
+        link: "/results/add/row",
         isOn: true,
         isEditMode: {
           data,
@@ -182,12 +181,12 @@ function Tables({ setIsPopupOn, isPopupOn }) {
           ),
           team1: {
             playerName: < >
-              {match.team1[0].players.map(el => <MDTypography mt=".5em" component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team1[0].players.map(el => <MDTypography mt={match.team1[0].players.length > 1 ? ".5em" : ''} component="p" variant="caption" color="text" fontWeight="medium">
                 {el.playerName}
               </MDTypography>)}
             </>,
             categorie: < >
-              {match.team1[0].players.map(el => <MDTypography mt=".5em" component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team1[0].players.map(el => <MDTypography mt={match.team1[0].players.length > 1 ? ".5em" : ''} component="p" variant="caption" color="text" fontWeight="medium">
                 {el.categorie}
               </MDTypography>)}
             </>,
@@ -204,12 +203,12 @@ function Tables({ setIsPopupOn, isPopupOn }) {
           },
           team2: {
             playerName: < >
-              {match.team2[0].players.map(el => <MDTypography mt=".5em" component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team2[0].players.map(el => <MDTypography mt={match.team2[0].players.length > 1 ? ".5em" : ''} component="p" variant="caption" color="text" fontWeight="medium">
                 {el.playerName}
               </MDTypography>)}
             </>,
             categorie: < >
-              {match.team2[0].players.map(el => <MDTypography mt=".5em" component="p" variant="caption" color="text" fontWeight="medium">
+              {match.team2[0].players.map(el => <MDTypography mt={match.team2[0].players.length > 1 ? ".5em" : ''} component="p" variant="caption" color="text" fontWeight="medium">
                 {el.categorie}
               </MDTypography>)}
             </>,
@@ -332,35 +331,6 @@ function Tables({ setIsPopupOn, isPopupOn }) {
     }
   }, [leagueData]);
 
-
-  /*
-    const mappedRows = isResultsHasMatches.map(result => (
-      {
-        hour: (
-          <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
-            {result.hour}
-          </MDTypography>
-        ),
-        matchcode: (
-          <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
-            matchcode
-          </MDTypography>
-        ),
- 
-        action: (
-          <>
-            <MDButton onClick={() => editHandler(result)}  >
-              Edit
-            </MDButton>
-            <MDButton onClick={() => deleteHandler(result.id)} >
-              Remove
-            </MDButton>
-          </>
-        ),
-      }
-    ))
-    */
-
   return (
     <>
       {isLoading || deleteTableLoading ? <Loading /> : <DashboardLayout>
@@ -381,11 +351,18 @@ function Tables({ setIsPopupOn, isPopupOn }) {
           </Select>
         </FormControl>
         {
-          tableData.map((table, index) => (
-            <React.Fragment key={index}>
-              {table.tableInfo}
-            </React.Fragment>
-          ))
+
+          !leagueData?.leagues?.results?.length ? <MDBox display="flex" alignItems="center" justifyContent="center" padding="2em"  >
+            <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
+              No Data Found
+            </MDTypography>
+          </MDBox> :
+
+            tableData.map((table, index) => (
+              <React.Fragment key={index}>
+                {table.tableInfo}
+              </React.Fragment>
+            ))
 
         }
         {leagueData?.leagues ? <MDBox display="flex" justifyContent="center" padding="1em"  >

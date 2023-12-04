@@ -20,6 +20,7 @@ import { useAddLeaguesMutation } from 'store/api';
 import { useEditLeaguesMutation } from 'store/api';
 import { useAddResultTableMutation } from 'store/api';
 import { useAddResultsMatchesTableRowMutation } from 'store/api';
+import { useEditResultsMatchesTableRowMutation } from 'store/api';
 
 function Popup({ setIsPopupOn, link, data, id, popup }) {
 
@@ -57,35 +58,35 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
         leagueId: popup.leagueId
     })
 
-    const [formValuesResultTableRow, setFormValuesResultTableRow] = useState({
+    const [formValuesResultTableRow, setFormValuesResultTableRow] = useState(link !== "/results/add/row" ? {} : {
         hour: data ? data.hour : "",
         matchCode: data ? data.matchCode : "",
-        team1Name: data ? data.teamName : "",
-        team1Code: data ? data.teamCode : "",
-        team2Name: data ? data.teamName : "",
-        team2Code: data ? data.teamCode : "",
-        team1: [{
+        team1Name: data ? data?.team1[0].teamName : "",
+        team1Code: data ? data?.team1[0].teamCode : "",
+        team2Name: data ? data?.team2[0].teamName : "",
+        team2Code: data ? data?.team2[0].teamCode : "",
+        team1: data ? data?.team1[0].players : [{
             playerName: "",
             categorie: ""
         }],
-        team2: [
-            {
-                playerName: "",
-                categorie: ""
-            }
-        ],
+        team2: data ? data?.team2[0].players : [{
+            playerName: "",
+            categorie: ""
+        }],
         set1: {
-            team1: 0,
-            team2: 0,
+            team1: data ? data?.team1[0].set1 : 0,
+            team2: data ? data?.team2[0].set1 : 0,
         },
         set2: {
-            team1: 0,
-            team2: 0,
+            team1: data ? data?.team1[0].set2 : 0,
+            team2: data ? data?.team2[0].set2 : 0,
         },
         set3: {
-            team1: 0,
-            team2: 0,
+            team1: data ? data?.team1[0].set3 : 0,
+            team2: data ? data?.team2[0].set3 : 0,
         },
+        team1Id: data ? data?.team1[0].id : 0,
+        team2Id: data ? data?.team2[0].id : 0,
         resultId: popup.resultId
     })
 
@@ -95,6 +96,7 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
     const [addPlayOffTable, { isLoading: addPlayOffTableLoading }] = useAddPlayOffTableMutation()
     const [addPlayOffRowTable, { isLoading: addPlayOffTableRowLoading }] = useAddPlayOffTableRowMutation()
     const [addResultsMatchesTableRow, { isLoading: addResultsMatchesTableRowLoading }] = useAddResultsMatchesTableRowMutation()
+    const [editResultsMatchesTableRow, { isLoading: editResultsMatchesTableRowLoading }] = useEditResultsMatchesTableRowMutation()
     const [editMatchSchedules, { isLoading: EditLoading }] = useEditMatchSchedulesMutation()
     const [editPlayOffRowTable, { isLoading: EditPlayOfFLoading }] = useEditPlayOffTableRowMutation()
     const [editLeagues, { isLoading: EditLeaguesLoading }] = useEditLeaguesMutation()
@@ -293,7 +295,7 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                                     type="text"
                                     onChange={(e) => setFormValuesResultTableRow((prevValues) => {
                                         const updatedTeam1 = [...prevValues.team1];
-                                        updatedTeam1[index].playerName = e.target.value;
+                                        updatedTeam1[index] = { ...updatedTeam1[index], playerName: e.target.value };
                                         return { ...prevValues, team1: updatedTeam1 };
                                     })}
                                     label={player.playerName ? '' : `Team 1 Player ${index + 1}`}
@@ -303,7 +305,7 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                             <MDBox display="flex" justifyContent="center">
                                 <MDButton onClick={() => setFormValuesResultTableRow((prevValues) => {
                                     const updatedTeam1 = [...prevValues.team1];
-                                    updatedTeam1.pop(); // Remove the last player
+                                    updatedTeam1.splice(index, 1); // Remove the player at the specified index
                                     return { ...prevValues, team1: updatedTeam1 };
                                 })}>
                                     Remove
@@ -316,7 +318,7 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                                     type="text"
                                     onChange={(e) => setFormValuesResultTableRow((prevValues) => {
                                         const updatedTeam1 = [...prevValues.team1];
-                                        updatedTeam1[index].categorie = e.target.value;
+                                        updatedTeam1[index] = { ...updatedTeam1[index], categorie: e.target.value };
                                         return { ...prevValues, team1: updatedTeam1 };
                                     })}
                                     label={player.categorie ? '' : `Team 1 Category ${index + 1}`}
@@ -342,7 +344,7 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                                     type="text"
                                     onChange={(e) => setFormValuesResultTableRow((prevValues) => {
                                         const updatedTeam2 = [...prevValues.team2];
-                                        updatedTeam2[index].playerName = e.target.value;
+                                        updatedTeam2[index] = { ...updatedTeam2[index], playerName: e.target.value };;
                                         return { ...prevValues, team2: updatedTeam2 };
                                     })}
                                     label={player.playerName ? '' : `Team 2 Player ${index + 1}`}
@@ -352,7 +354,7 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                             <MDBox display="flex" justifyContent="center">
                                 <MDButton onClick={() => setFormValuesResultTableRow((prevValues) => {
                                     const updatedTeam2 = [...prevValues.team2];
-                                    updatedTeam2.pop(); // Remove the last player
+                                    updatedTeam2.splice(index, 1); // Remove the player at the specified index
                                     return { ...prevValues, team2: updatedTeam2 };
                                 })}>
                                     Remove
@@ -365,7 +367,7 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                                     type="text"
                                     onChange={(e) => setFormValuesResultTableRow((prevValues) => {
                                         const updatedTeam2 = [...prevValues.team2];
-                                        updatedTeam2[index].categorie = e.target.value;
+                                        updatedTeam2[index] = { ...updatedTeam2[index], categorie: e.target.value };
                                         return { ...prevValues, team2: updatedTeam2 };
                                     })}
                                     label={player.categorie ? '' : `Team 2 Category ${index + 1}`}
@@ -508,7 +510,7 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                         }
                         break;
                     case "/results/add/row":
-                        result = await editLeagues({ formValues: formValuesLeagues, id: data.id, token }).unwrap();
+                        result = await editResultsMatchesTableRow({ formValues: formValuesResultTableRow, id: data.id, token }).unwrap();
                         if (result?.success) {
                             dispatch(adminActions.setRefetch("EDIT"))
                             setTimeout(() => {
@@ -595,7 +597,7 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
         <>
             {isLoading || addPlayOffTableLoading || addPlayOffTableLoading
                 || addPlayOffTableRowLoading || EditLoading || EditPlayOfFLoading || leaguesLoading || resultsTableLoading
-                || addResultsMatchesTableRowLoading || EditLeaguesLoading ? <Loading /> : <div className='popup-container'>
+                || addResultsMatchesTableRowLoading || EditLeaguesLoading || editResultsMatchesTableRowLoading ? <Loading /> : <div className='popup-container'>
                 <ToastContainer />
                 <div className='popup' >
                     <div className="closeBtn" >

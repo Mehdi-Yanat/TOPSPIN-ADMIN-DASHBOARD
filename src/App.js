@@ -10,7 +10,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 
 // Material Dashboard 2 React example components
 import Sidenav from "examples/Sidenav";
-import Configurator from "examples/Configurator";
 
 // Material Dashboard 2 React themes
 import theme from "assets/theme";
@@ -18,8 +17,6 @@ import theme from "assets/theme";
 // Material Dashboard 2 React Dark Mode themes
 import themeDark from "assets/theme-dark";
 
-// RTL plugins
-import createCache from "@emotion/cache";
 
 // Material Dashboard 2 React routes
 import routes from "routes";
@@ -71,9 +68,6 @@ export default function App() {
     }
   };
 
-  // Change the openConfigurator state
-  const handleConfiguratorOpen = () => setOpenConfigurator(dispatch, !openConfigurator);
-
   // Setting the dir attribute for the body element
   useEffect(() => {
     document.body.setAttribute("dir", direction);
@@ -104,8 +98,11 @@ export default function App() {
         // Check if the route requires authentication
         const isProtected = route.protected || false;
 
+        // Check if the route is login or reset
+        const isLoginOrReset = route.route === "/auth/login" || route.route === "/auth/reset";
+
         // Use a regular Route or a Navigate based on authentication status
-        return isProtected ? (
+        return isProtected && !isLoginOrReset ? (
           <Route
             path={route.route}
             element={isAuth?.success ? cloneElement(route.component, { setIsPopupOn, isPopupOn })

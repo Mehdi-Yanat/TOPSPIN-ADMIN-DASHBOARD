@@ -263,6 +263,16 @@ const api = createApi({
                 },
             }),
         }),
+        editResultsMatchesTableRow: builder.mutation({
+            query: ({ formValues, id, token }) => ({
+                url: `/results/match/${id}`,
+                method: 'PUT',
+                body: formValues,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
         deleteResultMacthesTableRow: builder.mutation({
             query: ({ id, token }) => ({
                 url: `/results/match/${id}`,
@@ -283,7 +293,8 @@ export const {
     useEditAdminMutation, useAddAdminMutation, useLogoutMutation, useListAdminQuery, useDeleteAdminMutation, useGetAllPlayOffQuery, useAddPlayOffTableMutation,
     useAddPlayOffTableRowMutation, useEditPlayOffTableRowMutation, useDeletePlayOffTableRowMutation, useDeletePlayOffTableMutation, useGetAllLeaguesQuery,
     useAddLeaguesMutation, useDeleteLeaguesMutation, useEditLeaguesMutation, useGetOneLeaguesQuery,
-    useGetAllResultsQuery, useAddResultTableMutation, useDeleteResultTableMutation, useDeleteResultMacthesTableRowMutation, useAddResultsMatchesTableRowMutation
+    useGetAllResultsQuery, useAddResultTableMutation, useDeleteResultTableMutation, useDeleteResultMacthesTableRowMutation, useAddResultsMatchesTableRowMutation,
+    useEditResultsMatchesTableRowMutation
 } = api;
 
 export default api;
