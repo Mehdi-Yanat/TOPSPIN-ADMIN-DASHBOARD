@@ -193,8 +193,8 @@ const api = createApi({
             }),
         }),
         getOneLeagues: builder.query({
-            query: ({ id }) => ({
-                url: '/leagues/' + id,
+            query: ({ id, groupId }) => ({
+                url: `/leagues/${id}/group/${groupId}`,
                 method: 'GET', // or 'GET' depending on your API
             }),
         }),

@@ -14,7 +14,6 @@ import Footer from "examples/Footer";
 import DataTable from "examples/Tables/DataTable";
 
 // Data
-import { useGetAllMatchSchedulesQuery } from "store/api";
 import { getCookie } from "react-use-cookie";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -33,7 +32,8 @@ function Tables({ setIsPopupOn, isPopupOn }) {
 
   const token = getCookie('auth-token')
 
-  const [leagueId, setLeague] = useState("Select League")
+  const [leagueId, setLeague] = useState(0)
+  const [leagueGroupId, setLeagueGroup] = useState(0)
 
   const dispatch = useDispatch()
 
@@ -41,10 +41,19 @@ function Tables({ setIsPopupOn, isPopupOn }) {
 
 
   const { data: leaguesData } = useGetAllLeaguesQuery();
-  const { data: leagueData, refetch: refetchLeagueData } = useGetOneLeaguesQuery({ id: leagueId });
+  const { data: leagueData, refetch: refetchLeagueData } = useGetOneLeaguesQuery({ id: leagueId, groupId: leagueGroupId });
   const [deleteMatchSchedules, { isLoading }] = useDeleteMatchSchedulesMutation()
+  const [matchScheduleData, setMatchScheduleData] = useState([])
 
 
+  useEffect(() => {
+    if (leagueId || leagueGroupId) {
+      const findData = leagueData?.leagues?.leaguesGroups.find(el => el.id === leagueGroupId)
+
+      setMatchScheduleData(findData?.matchSchedule)
+
+    }
+  }, [leagueId, leagueGroupId, refetchMatches])
 
 
   const [data, setData] = useState({
@@ -99,13 +108,14 @@ function Tables({ setIsPopupOn, isPopupOn }) {
       refetchLeagueData()
       setIsPopupOn(false)
     }
-  }, [refetchMatches, setIsPopupOn, refetchLeagueData])
+  }, [refetchMatches, setIsPopupOn, refetchLeagueData, leagueGroupId])
+
 
   useEffect(() => {
-    if (leagueData?.leagues?.matchSchedule) {
+    if (matchScheduleData) {
       // Extract only the necessary properties from matchSchedulesData
       // Map over matchSchedulesData.matches and generate rows
-      const mappedRows = leagueData?.leagues?.matchSchedule.map((match) => ({
+      const mappedRows = matchScheduleData.map((match) => ({
         date: (
           <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
             {moment(match.date).format('YYYY.MM.DD')}
@@ -158,7 +168,7 @@ function Tables({ setIsPopupOn, isPopupOn }) {
         rows: mappedRows,
       }));
     }
-  }, [leagueData]);
+  }, [matchScheduleData]);
 
 
 
@@ -182,7 +192,22 @@ function Tables({ setIsPopupOn, isPopupOn }) {
             }
           </Select>
         </FormControl>
-        {leagueData?.leagues ? <MDBox pt={6} pb={3}>
+        {leagueId ? <FormControl style={{ marginTop: '1em' }} fullWidth>
+          <InputLabel mt="1em" id="demo-simple-select-label">League Group</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={leagueGroupId}
+            label="league"
+            onChange={(e) => setLeagueGroup(e.target.value)}
+            sx={{ padding: "1em" }}
+          >
+            {
+              leagueData?.leagues?.leaguesGroups.map(el => <MenuItem value={el.id}>{el.groupIdentifier}</MenuItem>)
+            }
+          </Select>
+        </FormControl> : ''}
+        {leagueGroupId ? <MDBox pt={6} pb={3}>
           <Grid container spacing={6}>
             <Grid item xs={12}>
               <Card>
@@ -203,7 +228,7 @@ function Tables({ setIsPopupOn, isPopupOn }) {
                     <MDButton onClick={() => setIsPopupOn({
                       link: '/match-schedules',
                       isOn: true,
-                      leagueId
+                      leagueGroupId
                     })} >
                       Add Match Schedule
                     </MDButton>

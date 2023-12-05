@@ -13,7 +13,6 @@ import { toast } from 'react-toastify'
 import { getCookie } from 'react-use-cookie'
 import { adminActions } from 'store/admin/admin-slice'
 import { useDeleteLeaguesMutation } from 'store/api'
-import { useEditLeaguesMutation } from 'store/api'
 import { useGetAllLeaguesQuery } from 'store/api'
 
 function Leagues({ setIsPopupOn }) {
@@ -31,6 +30,7 @@ function Leagues({ setIsPopupOn }) {
     const [data, setData] = useState({
         columns: [
             { Header: "league Name", accessor: "leagueName", align: "center" },
+            { Header: "league Groups", accessor: "leagueGroups", align: "center" },
             { Header: "action", accessor: "action", align: "center" },
         ],
         rows: []
@@ -39,13 +39,18 @@ function Leagues({ setIsPopupOn }) {
 
     useEffect(() => {
         if (leaguesData) {
-            // Extract only the necessary properties from matchSchedulesData
-            // Map over matchSchedulesData.matches and generate rows
             const mappedRows = leaguesData.leagues.map((league) => ({
                 leagueName: (
-                    <MDTypography component="a" href="#" variant="caption" color="text" fontWeight="medium">
+                    <MDTypography component="p" href="#" variant="caption" color="text" fontWeight="medium">
                         {league.leagueName}
                     </MDTypography>
+                ),
+                leagueGroups: (
+                    <>
+                        {league.leaguesGroups.map(el => <MDTypography mt={league.leaguesGroups.length > 1 ? ".5em" : ''} component="p" href="#" variant="caption" color="text" fontWeight="medium">
+                            {el.groupIdentifier}
+                        </MDTypography>)}
+                    </>
                 ),
                 action: (
                     <>
@@ -101,12 +106,12 @@ function Leagues({ setIsPopupOn }) {
     }
 
 
-  useEffect(() => {
-    if (refetchLeagues) {
-      refetch()
-      setIsPopupOn(false)
-    }
-  }, [refetchLeagues, setIsPopupOn, refetch])
+    useEffect(() => {
+        if (refetchLeagues) {
+            refetch()
+            setIsPopupOn(false)
+        }
+    }, [refetchLeagues, setIsPopupOn, refetch])
 
 
     return (

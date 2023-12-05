@@ -34,7 +34,8 @@ function Tables({ setIsPopupOn, isPopupOn }) {
 
   const token = getCookie('auth-token')
 
-  const [leagueId, setLeague] = useState("Select League")
+  const [leagueId, setLeague] = useState(0)
+  const [leagueGroupId, setLeagueGroup] = useState(0)
 
   const dispatch = useDispatch()
 
@@ -42,10 +43,18 @@ function Tables({ setIsPopupOn, isPopupOn }) {
 
 
   const { data: leaguesData } = useGetAllLeaguesQuery();
-  const { data: leagueData, refetch: refetchLeagueData } = useGetOneLeaguesQuery({ id: leagueId });
+  const { data: leagueData, refetch: refetchLeagueData } = useGetOneLeaguesQuery({ id: leagueId, groupId: leagueGroupId });
   const [deleteResultTableRow, { isLoading }] = useDeleteResultMacthesTableRowMutation()
   const [deleteTable, { isLoading: deleteTableLoading }] = useDeleteResultTableMutation()
+  const [resultData, setResultData] = useState([])
 
+
+  useEffect(() => {
+    if (leagueId || leagueGroupId) {
+      const findData = leagueData?.leagues?.leaguesGroups.find(el => el.id === leagueGroupId)
+      setResultData(findData?.results)
+    }
+  }, [leagueId, leagueGroupId, refetchMatches])
 
   const [data, setData] = useState({
     columns: [
@@ -166,8 +175,8 @@ function Tables({ setIsPopupOn, isPopupOn }) {
 
 
   useEffect(() => {
-    if (leagueData?.leagues?.results?.length > 0) {
-      const mappedTables = leagueData.leagues.results.map((table) => {
+    if (resultData?.length > 0) {
+      const mappedTables = resultData.map((table) => {
         const mappedMatches = table.matches.map((match) => ({
           hour: (
             <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
@@ -329,7 +338,7 @@ function Tables({ setIsPopupOn, isPopupOn }) {
 
       setTableData(mappedTables);
     }
-  }, [leagueData]);
+  }, [resultData]);
 
   return (
     <>
@@ -350,9 +359,23 @@ function Tables({ setIsPopupOn, isPopupOn }) {
             }
           </Select>
         </FormControl>
+        {leagueId ? <FormControl style={{ marginTop: '1em' }} fullWidth>
+          <InputLabel mt="1em" id="demo-simple-select-label">League Group</InputLabel>
+          <Select
+            labelId="demo-simple-select-label"
+            id="demo-simple-select"
+            value={leagueGroupId}
+            label="league"
+            onChange={(e) => setLeagueGroup(e.target.value)}
+            sx={{ padding: "1em" }}
+          >
+            {
+              leagueData?.leagues?.leaguesGroups.map(el => <MenuItem value={el.id}>{el.groupIdentifier}</MenuItem>)
+            }
+          </Select>
+        </FormControl> : ''}
         {
-
-          !leagueData?.leagues?.results?.length ? <MDBox display="flex" alignItems="center" justifyContent="center" padding="2em"  >
+          !resultData?.length ? <MDBox display="flex" alignItems="center" justifyContent="center" padding="2em"  >
             <MDTypography component="p" variant="caption" color="text" fontWeight="medium">
               No Data Found
             </MDTypography>
@@ -365,11 +388,11 @@ function Tables({ setIsPopupOn, isPopupOn }) {
             ))
 
         }
-        {leagueData?.leagues ? <MDBox display="flex" justifyContent="center" padding="1em"  >
+        {leagueGroupId ? <MDBox display="flex" justifyContent="center" padding="1em"  >
           <MDButton onClick={() => setIsPopupOn({
             link: '/results/add/table',
             isOn: true,
-            leagueId
+            leagueGroupId
           })} >
             Add Match result Table
           </MDButton>

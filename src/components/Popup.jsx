@@ -38,7 +38,7 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
         team2MatchResultId: data?.team2MatchResult?.[0]?.id || "",
         team1Result: data?.team1MatchResult || 0,
         team2Result: data?.team2MatchResult || 0,
-        leagueId: popup.leagueId
+        leagueGroupId: popup.leagueGroupId
     })
 
     const [formValuesPlayOff, setFormValuesPlayOff] = useState({
@@ -50,12 +50,15 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
 
     const [formValuesLeagues, setFormValuesLeagues] = useState({
         leagueName: data ? data.leagueName : "",
+        leaguesGroups: data ? data.leaguesGroups : [{
+            groupIdentifier: ""
+        }]
     })
 
     const [formValuesResultTable, setFormValuesResultTable] = useState({
         identifierName: data ? data.identifierName : "",
         date: data ? moment(data.date).format('YYYY-MM-DD') : "",
-        leagueId: popup.leagueId
+        leagueGroupId: popup.leagueGroupId
     })
 
     const [formValuesResultTableRow, setFormValuesResultTableRow] = useState(link !== "/results/add/row" ? {} : {
@@ -205,13 +208,66 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
             case "/leagues":
                 return <>
                     <MDBox m={4} mb={2}>
-                        <MDInput value={formValuesLeagues.leagueName} name="team" type="text" onChange={(e) => setFormValuesLeagues(value => {
-                            return {
-                                ...value,
-                                leagueName: e.target.value
+                        <MDInput
+                            value={formValuesLeagues.leagueName}
+                            name="team"
+                            type="text"
+                            onChange={(e) =>
+                                setFormValuesLeagues((prevValues) => ({
+                                    ...prevValues,
+                                    leagueName: e.target.value,
+                                }))
                             }
-                        })} label={formValuesLeagues.leagueName ? '' : "League Name"} fullWidth />
+                            label={formValuesLeagues.leagueName ? '' : "League Name"}
+                            fullWidth
+                        />
                     </MDBox>
+
+                    {formValuesLeagues.leaguesGroups.map((group, index) => (
+                        <MDBox display="flex" alignItems="center" gap="1em" key={index} m={4} mb={2}>
+                            <MDInput
+                                value={group.groupIdentifier}
+                                name={`group-${index}`}
+                                type="text"
+                                onChange={(e) =>
+                                    setFormValuesLeagues((prevValues) => {
+                                        const updatedGroups = [...prevValues.leaguesGroups];
+                                        updatedGroups[index] = { ...updatedGroups[index], groupIdentifier: e.target.value };
+                                        return { ...prevValues, leaguesGroups: updatedGroups };
+                                    })
+                                } label={group.groupIdentifier ? "" : `Group ${index + 1}`}
+                                fullWidth
+                            />
+                            <MDButton
+                                onClick={() =>
+                                    setFormValuesLeagues((prevValues) => {
+                                        const updatedGroups = [...prevValues.leaguesGroups];
+                                        updatedGroups.splice(index, 1); // Remove the group at the specified index
+                                        console.log('====================================');
+                                        console.log(updatedGroups);
+                                        console.log('====================================');
+                                        return { ...prevValues, leaguesGroups: updatedGroups };
+                                    })
+                                }
+                            >
+                                Remove
+                            </MDButton>
+                        </MDBox>
+                    ))}
+
+                    <MDBox mt={2} display="flex" justifyContent="center">
+                        <MDButton
+                            onClick={() =>
+                                setFormValuesLeagues((prevValues) => ({
+                                    ...prevValues,
+                                    leaguesGroups: [...prevValues.leaguesGroups, { groupIdentifier: "" }],
+                                }))
+                            }
+                        >
+                            Add Group
+                        </MDButton>
+                    </MDBox>
+
                 </>
             case "/results/add/table":
                 return <>
