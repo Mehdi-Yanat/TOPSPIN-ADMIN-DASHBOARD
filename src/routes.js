@@ -2,12 +2,14 @@ import Tables from "layouts/tables/matchSchedules";
 import PlayOff from "layouts/tables/playoff";
 import Leagues from "layouts/tables/leagues";
 import Results from "layouts/tables/results";
+import Players from "layouts/tables/players";
 import Profile from "layouts/profile";
 import Login from "layouts/authentication/sign-in/index";
 
 // @mui icons
 import Icon from "@mui/material/Icon";
 import Error from "components/Error";
+import PopupManager from "layouts/popupManager/popup";
 
 const routes = [
   {
@@ -17,6 +19,15 @@ const routes = [
     icon: <Icon fontSize="small">sports_baseball</Icon>,
     route: "/",
     component: <Leagues />,
+    protected: true, // Mark the route as protected
+  },
+  {
+    type: "collapse",
+    name: "Players",
+    key: "Players",
+    icon: <Icon fontSize="small">groups</Icon>,
+    route: "/players",
+    component: <Players />,
     protected: true, // Mark the route as protected
   },
   {
@@ -53,6 +64,15 @@ const routes = [
     icon: <Icon fontSize="small">person</Icon>,
     route: "/profile",
     component: <Profile />,
+    protected: true, // Mark the route as protected
+  },
+  {
+    type: "collapse",
+    name: "Popup",
+    key: "popup",
+    icon: <Icon fontSize="small">design_services</Icon>,
+    route: "/popup",
+    component: <PopupManager />,
     protected: true, // Mark the route as protected
   },
   {

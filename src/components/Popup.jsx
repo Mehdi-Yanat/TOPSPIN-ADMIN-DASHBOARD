@@ -21,6 +21,8 @@ import { useEditLeaguesMutation } from 'store/api';
 import { useAddResultTableMutation } from 'store/api';
 import { useAddResultsMatchesTableRowMutation } from 'store/api';
 import { useEditResultsMatchesTableRowMutation } from 'store/api';
+import MDTypography from './MDTypography';
+import { useAddGroupsMutation } from 'store/api';
 
 function Popup({ setIsPopupOn, link, data, id, popup }) {
 
@@ -93,12 +95,18 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
         resultId: popup.resultId
     })
 
+    const [formValuesPlayers, setFormValuesPlayers] = useState({
+        identifierGroup: data ? data.identifierGroup : "",
+        file: null
+    })
+
     const [addMatchSchedules, { isLoading }] = useAddMatchSchedulesMutation()
     const [addLeagues, { isLoading: leaguesLoading }] = useAddLeaguesMutation()
     const [addResultsTable, { isLoading: resultsTableLoading }] = useAddResultTableMutation()
     const [addPlayOffTable, { isLoading: addPlayOffTableLoading }] = useAddPlayOffTableMutation()
     const [addPlayOffRowTable, { isLoading: addPlayOffTableRowLoading }] = useAddPlayOffTableRowMutation()
     const [addResultsMatchesTableRow, { isLoading: addResultsMatchesTableRowLoading }] = useAddResultsMatchesTableRowMutation()
+    const [addGroup, { isLoading: addGroupLoading }] = useAddGroupsMutation()
     const [editResultsMatchesTableRow, { isLoading: editResultsMatchesTableRowLoading }] = useEditResultsMatchesTableRowMutation()
     const [editMatchSchedules, { isLoading: EditLoading }] = useEditMatchSchedulesMutation()
     const [editPlayOffRowTable, { isLoading: EditPlayOfFLoading }] = useEditPlayOffTableRowMutation()
@@ -243,9 +251,6 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                                     setFormValuesLeagues((prevValues) => {
                                         const updatedGroups = [...prevValues.leaguesGroups];
                                         updatedGroups.splice(index, 1); // Remove the group at the specified index
-                                        console.log('====================================');
-                                        console.log(updatedGroups);
-                                        console.log('====================================');
                                         return { ...prevValues, leaguesGroups: updatedGroups };
                                     })
                                 }
@@ -528,6 +533,44 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                         </MDBox>
                     </MDBox>
                 </>
+            case "/groups":
+                return <>
+                    <MDBox m={4} mb={2}>
+                        <MDInput
+                            value={formValuesPlayers.identifierGroup}
+                            name="identifierGroup"
+                            type="text"
+                            onChange={(e) =>
+                                setFormValuesPlayers((prevValues) => ({
+                                    ...prevValues,
+                                    identifierGroup: e.target.value,
+                                }))
+                            }
+                            label={formValuesPlayers.identifierGroup ? '' : "Group Identifier"}
+                            fullWidth
+                        />
+                    </MDBox>
+                    <MDBox m={4} mb={2}>
+                        <MDTypography mb={1} component="p" variant="caption" color="text" fontWeight="medium">
+                            Excel File (to add multi groups and players)
+                        </MDTypography>
+                        <MDInput
+                            name="file"
+                            type="file"
+                            onChange={(e) => {
+                                // Use e.target.files to get the selected files
+                                const selectedFile = e.target.files[0];
+
+                                // Update the state with the selected file
+                                setFormValuesPlayers((prevValues) => ({
+                                    ...prevValues,
+                                    file: selectedFile,
+                                }));
+                            }}
+                            fullWidth
+                        />
+                    </MDBox>
+                </>
             default:
                 break;
         }
@@ -633,6 +676,20 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
                             }, 1000);
                         }
                         break;
+                    case "/groups":
+                        const formData = new FormData()
+                        formData.append("identifierGroup", formValuesPlayers.identifierGroup);
+                        formData.append("file", formValuesPlayers.file);
+                        formData.append("leagueGroupId", popup.leagueGroupId);
+
+                        result = await addGroup({ formValues: formData, token }).unwrap();
+                        if (result?.success) {
+                            dispatch(adminActions.setRefetch("ADD"))
+                            setTimeout(() => {
+                                dispatch(adminActions.setRefetch(''));
+                            }, 1000);
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -653,7 +710,7 @@ function Popup({ setIsPopupOn, link, data, id, popup }) {
         <>
             {isLoading || addPlayOffTableLoading || addPlayOffTableLoading
                 || addPlayOffTableRowLoading || EditLoading || EditPlayOfFLoading || leaguesLoading || resultsTableLoading
-                || addResultsMatchesTableRowLoading || EditLeaguesLoading || editResultsMatchesTableRowLoading ? <Loading /> : <div className='popup-container'>
+                || addResultsMatchesTableRowLoading || EditLeaguesLoading || editResultsMatchesTableRowLoading || addGroupLoading ? <Loading /> : <div className='popup-container'>
                 <ToastContainer />
                 <div className='popup' >
                     <div className="closeBtn" >

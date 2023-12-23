@@ -282,6 +282,43 @@ const api = createApi({
                 },
             }),
         }),
+        // Groups
+        addGroups: builder.mutation({
+            query: ({ formValues, id, token }) => ({
+                url: `/groups`,
+                method: 'POST',
+                body: formValues,
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        deleteGroups: builder.mutation({
+            query: ({ id, token }) => ({
+                url: `/groups/${id}`,
+                method: 'DELETE',
+                headers: {
+                    authorization: 'Bearer ' + token
+                },
+            }),
+        }),
+        // popup
+        getPopup: builder.query({
+            query: (token) => ({
+                url: '/ui/popup',
+                method: 'GET', // or 'GET' depending on your API
+            }),
+        }),
+        editPopup: builder.mutation({
+            query: ({ formData, token }) => ({
+                url: `/ui/popup`,
+                method: 'PUT',
+                body: formData,
+                headers: {
+                    authorization: 'Bearer ' + token,
+                },
+            }),
+        }),
     })
 })
 
@@ -294,7 +331,7 @@ export const {
     useAddPlayOffTableRowMutation, useEditPlayOffTableRowMutation, useDeletePlayOffTableRowMutation, useDeletePlayOffTableMutation, useGetAllLeaguesQuery,
     useAddLeaguesMutation, useDeleteLeaguesMutation, useEditLeaguesMutation, useGetOneLeaguesQuery,
     useGetAllResultsQuery, useAddResultTableMutation, useDeleteResultTableMutation, useDeleteResultMacthesTableRowMutation, useAddResultsMatchesTableRowMutation,
-    useEditResultsMatchesTableRowMutation
+    useEditResultsMatchesTableRowMutation, useAddGroupsMutation, useDeleteGroupsMutation, useGetPopupQuery, useEditPopupMutation
 } = api;
 
 export default api;
